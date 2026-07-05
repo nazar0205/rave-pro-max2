@@ -53,38 +53,9 @@
     .controls {
       display: flex;
       justify-content: center;
-      gap: 15px;
+      gap: 10px;
       margin: 15px 0;
       flex-wrap: wrap;
-    }
-
-    .msg {
-      display: flex;
-      align-items: flex-start;
-      background: #1f1f1f;
-      padding: 12px;
-      border-radius: 14px;
-      margin: 10px 0;
-      text-align: left;
-    }
-    .avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #ff00aa, #00ffff);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-right: 12px;
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    #chat {
-      max-height: 45vh;
-      overflow-y: auto;
-      text-align: left;
-      padding-bottom: 80px;
     }
   </style>
 </head>
@@ -104,6 +75,7 @@
   <div class="controls">
     <button onclick="playVideo()">▶ Play</button>
     <button onclick="pauseVideo()">⏸ Pause</button>
+    <button onclick="openInYoutube()">🌐 Открыть в YouTube</button>
   </div>
 
   <div id="videoBox"></div>
@@ -167,6 +139,14 @@
       if (!isHost) return;
       currentVideo.playing = false;
       db.collection("rooms").doc(roomCode).update({ video: currentVideo });
+    }
+
+    function openInYoutube() {
+      if (currentVideo.url) {
+        window.open(currentVideo.url, "_blank");
+      } else {
+        alert("Сначала поставь видео");
+      }
     }
 
     function renderVideo(v) {
