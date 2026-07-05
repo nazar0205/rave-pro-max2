@@ -14,7 +14,7 @@
       padding: 10px;
     }
     h1 { margin: 15px 0 20px; font-size: 2em; color: #ff00aa; }
-    
+
     input, button {
       padding: 14px;
       margin: 6px;
@@ -27,16 +27,212 @@
 
     #videoBox { margin: 20px auto; max-width: 100%; background: #000; border-radius: 16px; overflow: hidden; }
     video { width: 100%; max-height: 300px; border-radius: 16px; }
+
+    #presenceBar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .presenceChip {
+      background: #1f1f1f;
+      border: 1px solid #ff00aa55;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #33ff88;
+      display: inline-block;
+    }
+
+    #roomBar {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 12px auto;
+    }
+    #roomBar.active { display: flex; }
+    #roomCodeText {
+      font-size: 1.3em;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    #roomCodeText span { color: #ff00aa; }
+    .copyBtn {
+      background: #1f1f1f;
+      border: 1px solid #ff00aa55;
+      color: white;
+      padding: 8px 14px;
+      margin: 0;
+      border-radius: 10px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .copyBtn:active { transform: scale(0.94); }
+    .copyBtn.copied {
+      background: #1d3a2a;
+      border-color: #33ff8877;
+      color: #7dffb0;
+    }
+
+    #chat {
+      height: 360px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #141414;
+      border: 1px solid #262626;
+      border-radius: 16px;
+      padding: 14px;
+      scroll-behavior: smooth;
+    }
+    #chat::-webkit-scrollbar { width: 6px; }
+    #chat::-webkit-scrollbar-thumb { background: #333; border-radius: 6px; }
+
+    #chat:empty::before {
+      content: "Сообщений пока нет. Напиши первым!";
+      color: #555;
+      font-size: 13px;
+      margin: auto;
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      max-width: 85%;
+      animation: msgIn 0.18s ease-out;
+    }
+    .msg.own { flex-direction: row-reverse; align-self: flex-end; }
+    .msg.other { align-self: flex-start; }
+    .msg.grouped { margin-top: -4px; }
+
+    .avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      color: white; font-weight: bold;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 12px;
+    }
+    .avatar.spacer { visibility: hidden; }
+
+    .bubble {
+      background: #232323;
+      padding: 8px 12px;
+      border-radius: 14px;
+      border-bottom-left-radius: 4px;
+      min-width: 40px;
+    }
+    .msg.own .bubble {
+      background: #ff00aa;
+      border-bottom-left-radius: 14px;
+      border-bottom-right-radius: 4px;
+    }
+    .msg.grouped .bubble { border-radius: 14px; }
+
+    .msgName {
+      font-size: 11px;
+      font-weight: bold;
+      margin-bottom: 3px;
+      opacity: 0.9;
+    }
+    .msgText {
+      font-size: 14px;
+      line-height: 1.35;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+    .msgTime {
+      font-size: 10px;
+      opacity: 0.55;
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    #typingIndicator {
+      max-width: 500px;
+      margin: 6px auto 0;
+      text-align: left;
+      font-size: 12px;
+      color: #999;
+      min-height: 16px;
+      padding-left: 4px;
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .typingDots span {
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #ff00aa;
+      margin-right: 2px;
+      animation: typingBounce 1.2s infinite ease-in-out;
+    }
+    .typingDots span:nth-child(2) { animation-delay: 0.15s; }
+    .typingDots span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+      30% { transform: translateY(-3px); opacity: 1; }
+    }
+
+    .chatInputRow {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+    }
+    .chatInputRow input {
+      flex: 1;
+      width: auto;
+      margin: 0;
+    }
+    .chatInputRow button {
+      margin: 0;
+      padding: 14px 18px;
+    }
+
+    #videoError { color: #ff5555; font-size: 13px; padding: 0 10px; }
   </style>
 </head>
 <body>
   <h1>🎬 RAVE PRO MAX</h1>
 
+  <input id="nameInput" placeholder="Ваше имя">
+  <br>
   <input id="roomInput" placeholder="Код комнаты">
   <button onclick="joinRoom()">Войти</button>
   <button onclick="createRoom()">Создать</button>
 
+  <div id="roomBar">
+    <div id="roomCodeText">Комната: <span id="roomCodeValue"></span></div>
+    <button class="copyBtn" id="copyBtn" onclick="copyRoomCode()">
+      <span id="copyIcon">📋</span><span id="copyLabel">Скопировать</span>
+    </button>
+  </div>
   <h2 id="roomCode">Нет комнаты</h2>
+
+  <div id="presenceBar"></div>
   <hr>
 
   <input id="videoInput" placeholder="Прямая MP4 ссылка">
@@ -50,9 +246,14 @@
   <div id="videoBox"></div>
   <hr>
 
-  <input id="msgInput" placeholder="Сообщение..." onkeypress="if(event.key==='Enter') sendMsg()">
-  <button onclick="sendMsg()">Отправить</button>
-  <div id="chat"></div>
+  <div id="chatWrap">
+    <div id="chat"></div>
+    <div id="typingIndicator"></div>
+    <div class="chatInputRow">
+      <input id="msgInput" placeholder="Сообщение..." onkeypress="if(event.key==='Enter') sendMsg()" oninput="handleTyping()">
+      <button onclick="sendMsg()">➤</button>
+    </div>
+  </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -70,79 +271,279 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let roomCode = "", isHost = false;
-    let currentVideo = { url: "", playing: false };
+    let roomCode = "";
     let videoElement = null;
+    let lastVideoUrl = "";
+    let applyingRemoteUpdate = false;
+    let presenceTimer = null;
+    let heartbeatTimer = null;
+
+    // --- Пользователь ---
+    let userId = localStorage.getItem("rave_uid");
+    if (!userId) {
+      userId = Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem("rave_uid", userId);
+    }
+    let userName = localStorage.getItem("rave_name") || "";
+    document.getElementById("nameInput").value = userName;
+
+    function getName() {
+      const v = document.getElementById("nameInput").value.trim();
+      userName = v || "Гость";
+      localStorage.setItem("rave_name", userName);
+      return userName;
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function colorFromName(name) {
+      let hash = 0;
+      for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+      const hue = Math.abs(hash) % 360;
+      return `hsl(${hue}, 70%, 55%)`;
+    }
+
+    function formatTime(ts) {
+      const d = new Date(ts);
+      return d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0");
+    }
+
+    // --- Комната ---
+    function showRoomCode() {
+      document.getElementById("roomCode").style.display = "none";
+      document.getElementById("roomCodeValue").innerText = roomCode;
+      document.getElementById("roomBar").classList.add("active");
+    }
+
+    function copyRoomCode() {
+      navigator.clipboard.writeText(roomCode).then(() => {
+        const btn = document.getElementById("copyBtn");
+        const icon = document.getElementById("copyIcon");
+        const label = document.getElementById("copyLabel");
+        btn.classList.add("copied");
+        icon.innerText = "✓";
+        label.innerText = "Скопировано";
+        setTimeout(() => {
+          btn.classList.remove("copied");
+          icon.innerText = "📋";
+          label.innerText = "Скопировать";
+        }, 1800);
+      }).catch(() => alert("Код комнаты: " + roomCode));
+    }
 
     function createRoom() {
+      getName();
       roomCode = Math.floor(10000 + Math.random() * 90000).toString();
-      isHost = true;
-      document.getElementById("roomCode").innerText = `Комната: ${roomCode}`;
-      db.collection("rooms").doc(roomCode).set({ video: currentVideo });
-      listenRoom();
-      listenChat();
+      showRoomCode();
+      db.collection("rooms").doc(roomCode).set({
+        video: { url: "", playing: false, currentTime: 0 }
+      });
+      startRoom();
     }
 
     function joinRoom() {
+      getName();
       roomCode = document.getElementById("roomInput").value.trim();
       if (!roomCode) return alert("Введите код комнаты!");
-      isHost = false;
-      document.getElementById("roomCode").innerText = `Комната: ${roomCode}`;
+      showRoomCode();
+      startRoom();
+    }
+
+    function startRoom() {
       listenRoom();
       listenChat();
+      startPresence();
+      listenTyping();
     }
 
+    // --- "Печатает..." ---
+    let typingTimeout = null;
+    let lastTypingWrite = 0;
+
+    function handleTyping() {
+      const now = Date.now();
+      if (now - lastTypingWrite > 1500) {
+        lastTypingWrite = now;
+        db.collection("rooms").doc(roomCode).collection("typing").doc(userId).set({
+          name: userName,
+          time: Date.now()
+        });
+      }
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        db.collection("rooms").doc(roomCode).collection("typing").doc(userId).delete();
+      }, 2500);
+    }
+
+    function listenTyping() {
+      db.collection("rooms").doc(roomCode).collection("typing")
+        .onSnapshot(snap => {
+          const now = Date.now();
+          const names = [];
+          snap.forEach(d => {
+            if (d.id === userId) return;
+            const t = d.data();
+            if (now - t.time < 4000) names.push(t.name);
+          });
+
+          const box = document.getElementById("typingIndicator");
+          if (names.length === 0) {
+            box.innerHTML = "";
+          } else {
+            const text = names.length === 1
+              ? `${escapeHtml(names[0])} печатает`
+              : `${names.map(escapeHtml).join(", ")} печатают`;
+            box.innerHTML = `${text}<span class="typingDots"><span></span><span></span><span></span></span>`;
+          }
+        });
+    }
+
+    // --- Presence ---
+    function startPresence() {
+      if (presenceTimer) presenceTimer();
+      if (heartbeatTimer) clearInterval(heartbeatTimer);
+
+      const sendHeartbeat = () => {
+        db.collection("rooms").doc(roomCode).collection("presence").doc(userId).set({
+          name: userName,
+          lastSeen: Date.now()
+        });
+      };
+      sendHeartbeat();
+      heartbeatTimer = setInterval(sendHeartbeat, 8000);
+
+      window.addEventListener("beforeunload", () => {
+        db.collection("rooms").doc(roomCode).collection("presence").doc(userId).delete();
+      });
+
+      presenceTimer = db.collection("rooms").doc(roomCode).collection("presence")
+        .onSnapshot(snap => {
+          const bar = document.getElementById("presenceBar");
+          bar.innerHTML = "";
+          const now = Date.now();
+          snap.forEach(d => {
+            const p = d.data();
+            if (now - p.lastSeen < 20000) {
+              bar.innerHTML += `<div class="presenceChip"><span class="dot"></span>${escapeHtml(p.name)}</div>`;
+            }
+          });
+        });
+    }
+
+    // --- Видео: постановка фильма ---
     function setVideo() {
-      if (!isHost) return alert("Только хозяин может ставить фильм");
-      currentVideo.url = document.getElementById("videoInput").value.trim();
-      currentVideo.playing = true;
-      db.collection("rooms").doc(roomCode).update({ video: currentVideo });
+      const url = document.getElementById("videoInput").value.trim();
+      if (!url) return;
+      db.collection("rooms").doc(roomCode).update({
+        video: { url, playing: true, currentTime: 0, updatedAt: Date.now(), by: userId }
+      });
     }
 
-    function playVideo() {
-      if (videoElement) videoElement.play();
+    function pushVideoState(playing) {
+      if (!videoElement || applyingRemoteUpdate) return;
+      db.collection("rooms").doc(roomCode).update({
+        "video.playing": playing,
+        "video.currentTime": videoElement.currentTime,
+        "video.updatedAt": Date.now(),
+        "video.by": userId
+      });
     }
 
-    function pauseVideo() {
-      if (videoElement) videoElement.pause();
-    }
+    function playVideo() { if (videoElement) videoElement.play(); }
+    function pauseVideo() { if (videoElement) videoElement.pause(); }
 
     function renderVideo(v) {
       const box = document.getElementById("videoBox");
       if (!v.url) {
         box.innerHTML = "<p style='color:#666; padding:80px 20px;'>Фильм ещё не поставлен</p>";
+        lastVideoUrl = "";
         return;
       }
 
-      box.innerHTML = `
-        <video id="mainVideo" width="100%" height="280" controls>
-          <source src="${v.url}" type="video/mp4">
-        </video>`;
+      const isNewVideo = v.url !== lastVideoUrl;
 
-      videoElement = document.getElementById("mainVideo");
-      if (v.playing) {
-        videoElement.play().catch(() => {});
+      if (isNewVideo) {
+        lastVideoUrl = v.url;
+        box.innerHTML = `
+          <video id="mainVideo" width="100%" height="280" controls>
+            <source src="${v.url}" type="video/mp4">
+          </video>
+          <p id="videoError"></p>`;
+        videoElement = document.getElementById("mainVideo");
+        attachVideoEvents();
+
+        videoElement.addEventListener("loadedmetadata", () => {
+          applyingRemoteUpdate = true;
+          videoElement.currentTime = v.currentTime || 0;
+          if (v.playing) videoElement.play().catch(() => {});
+          setTimeout(() => { applyingRemoteUpdate = false; }, 300);
+        }, { once: true });
+
+        videoElement.addEventListener("error", () => {
+          const err = videoElement.error;
+          let msg = "Не удалось загрузить видео.";
+          if (err) {
+            const map = { 1: "Загрузка прервана.", 2: "Ошибка сети (проверь ссылку и https).",
+                          3: "Файл повреждён или неподдерживаемый кодек.",
+                          4: "Ссылка не является прямым mp4-файлом." };
+            msg += " " + (map[err.code] || "");
+          }
+          document.getElementById("videoError").innerText = msg;
+        });
+      } else {
+        applyRemoteState(v);
       }
+    }
+
+    function applyRemoteState(v) {
+      if (!videoElement || v.by === userId) return; // не применяем своё же изменение
+      applyingRemoteUpdate = true;
+
+      const diff = Math.abs(videoElement.currentTime - (v.currentTime || 0));
+      if (diff > 1.5) videoElement.currentTime = v.currentTime || 0;
+
+      if (v.playing && videoElement.paused) videoElement.play().catch(() => {});
+      if (!v.playing && !videoElement.paused) videoElement.pause();
+
+      setTimeout(() => { applyingRemoteUpdate = false; }, 300);
+    }
+
+    function attachVideoEvents() {
+      videoElement.addEventListener("play", () => pushVideoState(true));
+      videoElement.addEventListener("pause", () => pushVideoState(false));
+      videoElement.addEventListener("seeked", () => pushVideoState(!videoElement.paused));
+
+      // Периодический heartbeat времени, только пока видео играет
+      setInterval(() => {
+        if (videoElement && !videoElement.paused && !applyingRemoteUpdate) {
+          pushVideoState(true);
+        }
+      }, 5000);
     }
 
     function listenRoom() {
       db.collection("rooms").doc(roomCode).onSnapshot(doc => {
-        if (doc.exists) {
-          currentVideo = doc.data().video;
-          renderVideo(currentVideo);
-        }
+        if (doc.exists) renderVideo(doc.data().video || {});
       });
     }
 
+    // --- Чат ---
     function sendMsg() {
       const text = document.getElementById("msgInput").value.trim();
       if (!text) return;
       db.collection("rooms").doc(roomCode).collection("chat").add({
         text,
-        avatar: String.fromCharCode(65 + Math.floor(Math.random()*26)),
+        name: userName,
+        uid: userId,
         time: Date.now()
       });
       document.getElementById("msgInput").value = "";
+      clearTimeout(typingTimeout);
+      db.collection("rooms").doc(roomCode).collection("typing").doc(userId).delete();
     }
 
     function listenChat() {
@@ -150,12 +551,30 @@
         .orderBy("time")
         .onSnapshot(snap => {
           const chat = document.getElementById("chat");
+          const wasNearBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 60;
+
           chat.innerHTML = "";
+          let prevUid = null;
           snap.forEach(d => {
             const m = d.data();
-            chat.innerHTML += `<div class="msg"><div class="avatar">${m.avatar}</div><div>${m.text}</div></div>`;
+            const isOwn = m.uid === userId;
+            const name = m.name || "Гость";
+            const color = colorFromName(name);
+            const isGrouped = prevUid === m.uid;
+            prevUid = m.uid;
+
+            chat.innerHTML += `
+              <div class="msg ${isOwn ? "own" : "other"} ${isGrouped ? "grouped" : ""}">
+                <div class="avatar ${isGrouped ? "spacer" : ""}" style="background:${color}">${escapeHtml((name[0] || "?").toUpperCase())}</div>
+                <div class="bubble">
+                  ${(!isOwn && !isGrouped) ? `<div class="msgName" style="color:${color}">${escapeHtml(name)}</div>` : ""}
+                  <div class="msgText">${escapeHtml(m.text)}</div>
+                  <div class="msgTime">${formatTime(m.time)}</div>
+                </div>
+              </div>`;
           });
-          chat.scrollTop = chat.scrollHeight;
+
+          if (wasNearBottom) chat.scrollTop = chat.scrollHeight;
         });
     }
   </script>
