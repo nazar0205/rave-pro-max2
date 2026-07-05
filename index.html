@@ -212,70 +212,7 @@
       padding: 14px 18px;
     }
 
-    .uploadWrap {
-      max-width: 400px;
-      margin: 14px auto;
-      background: #141414;
-      border: 1px solid #262626;
-      border-radius: 16px;
-      padding: 14px;
-    }
-    .uploadDivider {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #555;
-      font-size: 12px;
-      margin: 8px 0;
-    }
-    .uploadDivider::before, .uploadDivider::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: #2a2a2a;
-    }
-    .fileLabel {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #1f1f1f;
-      border: 1px solid #ff00aa55;
-      border-radius: 12px;
-      padding: 12px 18px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.15s;
-    }
-    .fileLabel:active { transform: scale(0.97); }
-    #fileInput { display: none; }
-    #fileNameShown {
-      font-size: 12px;
-      color: #999;
-      margin-top: 8px;
-      word-break: break-all;
-    }
-    #uploadProgressWrap {
-      display: none;
-      margin-top: 10px;
-      background: #262626;
-      border-radius: 8px;
-      overflow: hidden;
-      height: 8px;
-    }
-    #uploadProgressWrap.active { display: block; }
-    #uploadProgressBar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #ff00aa, #ff66c4);
-      transition: width 0.15s;
-    }
-    #uploadStatus {
-      font-size: 12px;
-      color: #999;
-      margin-top: 6px;
-    }
-    #uploadStatus.error { color: #ff5555; }
-    #uploadStatus.success { color: #7dffb0; }
+    #videoError { color: #ff5555; font-size: 13px; padding: 0 10px; }
   </style>
 </head>
 <body>
@@ -301,15 +238,6 @@
   <input id="videoInput" placeholder="Прямая MP4 ссылка">
   <button onclick="setVideo()">Поставить фильм</button>
 
-  <div class="uploadWrap">
-    <div class="uploadDivider">или</div>
-    <label class="fileLabel" for="fileInput">🎬 Загрузить видео с телефона</label>
-    <input type="file" id="fileInput" accept="video/*" onchange="handleFileSelect()">
-    <div id="fileNameShown"></div>
-    <div id="uploadProgressWrap"><div id="uploadProgressBar"></div></div>
-    <div id="uploadStatus"></div>
-  </div>
-
   <div style="margin:15px 0">
     <button onclick="playVideo()">▶ Play</button>
     <button onclick="pauseVideo()">⏸ Pause</button>
@@ -329,7 +257,6 @@
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 
   <script>
     const firebaseConfig = {
@@ -343,7 +270,6 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const storage = firebase.storage();
 
     let roomCode = "";
     let videoElement = null;
@@ -517,72 +443,6 @@
       });
     }
 
-    function handleFileSelect() {
-      const fileInput = document.getElementById("fileInput");
-      const file = fileInput.files[0];
-      const statusEl = document.getElementById("uploadStatus");
-      const nameEl = document.getElementById("fileNameShown");
-
-      statusEl.className = "";
-      statusEl.innerText = "";
-
-      if (!file) return;
-      if (!roomCode) {
-        statusEl.className = "error";
-        statusEl.innerText = "Сначала создай или войди в комнату!";
-        fileInput.value = "";
-        return;
-      }
-
-      nameEl.innerText = `${file.name} (${(file.size / 1024 / 1024).toFixed(1)} МБ)`;
-      uploadToFirebase(file);
-    }
-
-    function uploadToFirebase(file) {
-      const progressWrap = document.getElementById("uploadProgressWrap");
-      const progressBar = document.getElementById("uploadProgressBar");
-      const statusEl = document.getElementById("uploadStatus");
-
-      const safeName = file.name.replace(/[^a-zA-Z0-9а-яА-Я._-]/g, "_");
-      const path = `videos/${roomCode}/${Date.now()}_${safeName}`;
-      const storageRef = storage.ref().child(path);
-      const uploadTask = storageRef.put(file);
-
-      progressWrap.classList.add("active");
-      progressBar.style.width = "0%";
-      statusEl.className = "";
-      statusEl.innerText = "Загрузка началась...";
-
-      uploadTask.on("state_changed",
-        (snapshot) => {
-          const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-          progressBar.style.width = pct + "%";
-          statusEl.innerText = `Загрузка: ${pct}%`;
-        },
-        (error) => {
-          progressWrap.classList.remove("active");
-          statusEl.className = "error";
-          let msg = "Ошибка загрузки.";
-          if (error.code === "storage/unauthorized") {
-            msg += " Нет доступа — проверь Storage Rules в Firebase Console.";
-          } else {
-            msg += " " + error.message;
-          }
-          statusEl.innerText = msg;
-        },
-        () => {
-          uploadTask.snapshot.ref.getDownloadURL().then((url) => {
-            progressWrap.classList.remove("active");
-            statusEl.className = "success";
-            statusEl.innerText = "Загружено! Ставлю фильм для всех...";
-            db.collection("rooms").doc(roomCode).update({
-              video: { url, playing: true, currentTime: 0, updatedAt: Date.now(), by: userId }
-            });
-          });
-        }
-      );
-    }
-
     function pushVideoState(playing) {
       if (!videoElement || applyingRemoteUpdate) return;
       db.collection("rooms").doc(roomCode).update({
@@ -609,7 +469,9 @@
       if (isNewVideo) {
         lastVideoUrl = v.url;
         box.innerHTML = `
-          <video id="mainVideo" width="100%" height="280" controls playsinline src="${v.url}"></video>
+          <video id="mainVideo" width="100%" height="280" controls>
+            <source src="${v.url}" type="video/mp4">
+          </video>
           <p id="videoError"></p>`;
         videoElement = document.getElementById("mainVideo");
         attachVideoEvents();
@@ -656,4 +518,65 @@
       videoElement.addEventListener("seeked", () => pushVideoState(!videoElement.paused));
 
       // Периодический heartbeat времени, только пока видео играет
-     
+      setInterval(() => {
+        if (videoElement && !videoElement.paused && !applyingRemoteUpdate) {
+          pushVideoState(true);
+        }
+      }, 5000);
+    }
+
+    function listenRoom() {
+      db.collection("rooms").doc(roomCode).onSnapshot(doc => {
+        if (doc.exists) renderVideo(doc.data().video || {});
+      });
+    }
+
+    // --- Чат ---
+    function sendMsg() {
+      const text = document.getElementById("msgInput").value.trim();
+      if (!text) return;
+      db.collection("rooms").doc(roomCode).collection("chat").add({
+        text,
+        name: userName,
+        uid: userId,
+        time: Date.now()
+      });
+      document.getElementById("msgInput").value = "";
+      clearTimeout(typingTimeout);
+      db.collection("rooms").doc(roomCode).collection("typing").doc(userId).delete();
+    }
+
+    function listenChat() {
+      db.collection("rooms").doc(roomCode).collection("chat")
+        .orderBy("time")
+        .onSnapshot(snap => {
+          const chat = document.getElementById("chat");
+          const wasNearBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 60;
+
+          chat.innerHTML = "";
+          let prevUid = null;
+          snap.forEach(d => {
+            const m = d.data();
+            const isOwn = m.uid === userId;
+            const name = m.name || "Гость";
+            const color = colorFromName(name);
+            const isGrouped = prevUid === m.uid;
+            prevUid = m.uid;
+
+            chat.innerHTML += `
+              <div class="msg ${isOwn ? "own" : "other"} ${isGrouped ? "grouped" : ""}">
+                <div class="avatar ${isGrouped ? "spacer" : ""}" style="background:${color}">${escapeHtml((name[0] || "?").toUpperCase())}</div>
+                <div class="bubble">
+                  ${(!isOwn && !isGrouped) ? `<div class="msgName" style="color:${color}">${escapeHtml(name)}</div>` : ""}
+                  <div class="msgText">${escapeHtml(m.text)}</div>
+                  <div class="msgTime">${formatTime(m.time)}</div>
+                </div>
+              </div>`;
+          });
+
+          if (wasNearBottom) chat.scrollTop = chat.scrollHeight;
+        });
+    }
+  </script>
+</body>
+</html>
