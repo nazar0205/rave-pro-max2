@@ -32,7 +32,6 @@
       color: white;
       border: none;
       font-weight: bold;
-      cursor: pointer;
     }
     button:active { transform: scale(0.96); }
 
@@ -44,7 +43,13 @@
       background: #000;
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 0 30px rgba(255,0,170,0.3);
+      min-height: 260px;
+    }
+
+    video {
+      width: 100%;
+      max-height: 280px;
+      border-radius: 16px;
     }
 
     .controls {
@@ -80,7 +85,6 @@
     #chat {
       max-height: 45vh;
       overflow-y: auto;
-      text-align: left;
       padding-bottom: 80px;
     }
   </style>
@@ -95,7 +99,7 @@
   <h2 id="roomCode">Нет комнаты</h2>
   <hr>
 
-  <input id="videoInput" placeholder="YouTube ссылка">
+  <input id="videoInput" placeholder="YouTube или MP4 ссылка">
   <button onclick="setVideo()">Поставить видео</button>
 
   <div class="controls">
@@ -112,7 +116,6 @@
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.youtube.com/iframe_api"></script>
 
   <script>
     const firebaseConfig = {
@@ -127,53 +130,63 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let roomCode = "", isHost = false, player;
-    let currentVideo = { url: "", playing: false, time: 0 };
+    let roomCode = "", isHost = false;
+    let currentVideo = { url: "", playing: false };
 
     function createRoom() {
       roomCode = Math.floor(10000 + Math.random() * 90000).toString();
       isHost = true;
       document.getElementById("roomCode").innerText = `Комната: ${roomCode}`;
       db.collection("rooms").doc(roomCode).set({ video: currentVideo });
-      listenRoom(); listenChat();
+      listenRoom();
+      listenChat();
     }
 
     function joinRoom() {
       roomCode = document.getElementById("roomInput").value.trim();
-      if (!roomCode) return alert("Введите код!");
+      if (!roomCode) return alert("Введите код комнаты!");
       isHost = false;
       document.getElementById("roomCode").innerText = `Комната: ${roomCode}`;
-      listenRoom(); listenChat();
-    }
-
-    function getYouTubeId(url) {
-      if (url.includes("youtu.be")) return url.split("/").pop().split("?")[0];
-      try { return new URL(url).searchParams.get("v"); } catch { return ""; }
+      listenRoom();
+      listenChat();
     }
 
     function setVideo() {
       if (!isHost) return alert("Только хозяин может менять видео");
       currentVideo.url = document.getElementById("videoInput").value.trim();
+      currentVideo.playing = true;
+      db.collection("rooms").doc(roomCode).update({ video: currentVideo });
+    }
+
+    function playVideo() {
+      if (!isHost) return;
+      currentVideo.playing = true;
+      db.collection("rooms").doc(roomCode).update({ video: currentVideo });
+    }
+
+    function pauseVideo() {
+      if (!isHost) return;
       currentVideo.playing = false;
       db.collection("rooms").doc(roomCode).update({ video: currentVideo });
     }
 
-    function playVideo() { if (isHost && player) player.playVideo(); }
-    function pauseVideo() { if (isHost && player) player.pauseVideo(); }
-
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('videoBox', {
-        width: '100%',
-        height: '260',
-        videoId: '',
-        playerVars: { 'autoplay': 0, 'modestbranding': 1, 'rel': 0 }
-      });
-    }
-
     function renderVideo(v) {
-      if (!v.url || !player) return;
-      const id = getYouTubeId(v.url);
-      if (id) player.loadVideoById(id);
+      const box = document.getElementById("videoBox");
+      if (!v.url) {
+        box.innerHTML = "<p style='color:#666;padding:60px 20px;'>Видео не поставлено</p>";
+        return;
+      }
+
+      if (v.url.includes("youtube") || v.url.includes("youtu.be")) {
+        const id = v.url.includes("youtu.be") ? v.url.split("/").pop().split("?")[0] : new URL(v.url).searchParams.get("v");
+        box.innerHTML = `<iframe width="100%" height="260" src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+      } else {
+        box.innerHTML = `
+          <video width="100%" height="260" controls autoplay ${v.playing ? 'autoplay' : ''}>
+            <source src="${v.url}" type="video/mp4">
+            Ваш браузер не поддерживает видео.
+          </video>`;
+      }
     }
 
     function listenRoom() {
@@ -189,14 +202,17 @@
       const text = document.getElementById("msgInput").value.trim();
       if (!text) return;
       db.collection("rooms").doc(roomCode).collection("chat").add({
-        text, avatar: String.fromCharCode(65 + Math.floor(Math.random()*26)), time: Date.now()
+        text,
+        avatar: String.fromCharCode(65 + Math.floor(Math.random()*26)),
+        time: Date.now()
       });
       document.getElementById("msgInput").value = "";
     }
 
     function listenChat() {
       db.collection("rooms").doc(roomCode).collection("chat")
-        .orderBy("time").onSnapshot(snap => {
+        .orderBy("time")
+        .onSnapshot(snap => {
           const chat = document.getElementById("chat");
           chat.innerHTML = "";
           snap.forEach(d => {
@@ -206,8 +222,6 @@
           chat.scrollTop = chat.scrollHeight;
         });
     }
-
-    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
   </script>
 </body>
 </html>
