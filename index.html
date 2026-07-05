@@ -5,87 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Rave PRO MAX</title>
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0a0a0a;
-      color: white;
-      text-align: center;
-      margin: 0;
-      padding: 10px;
-    }
-    h1 { margin: 10px 0 20px; font-size: 2em; }
-    
+    body {font-family: Arial; background: #0a0a0a; color: white; text-align: center; margin: 0; padding: 10px;}
+    h1 {margin: 15px 0;}
     input, button {
       padding: 14px;
       margin: 6px;
       border-radius: 12px;
       font-size: 16px;
     }
-    input {
-      background: #1f1f1f;
-      color: white;
-      border: none;
-      width: 240px;
-    }
-    button {
-      background: #ff00aa;
-      color: white;
-      border: none;
-      font-weight: bold;
-    }
-    button:active { transform: scale(0.96); }
+    input {background: #1f1f1f; color: white; width: 240px; border: none;}
+    button {background: #ff00aa; color: white; border: none; font-weight: bold;}
+    button:active {transform: scale(0.95);}
 
-    #roomCode { color: #ff00aa; font-size: 1.3em; margin: 15px 0; }
-
-    #videoBox {
-      margin: 20px auto;
-      max-width: 100%;
-      background: #000;
-      border-radius: 16px;
-      overflow: hidden;
-      min-height: 260px;
-    }
-
-    video {
-      width: 100%;
-      border-radius: 16px;
-    }
-
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin: 15px 0;
-      flex-wrap: wrap;
-    }
+    #videoBox {margin: 20px auto; max-width: 100%; background: #000; border-radius: 16px; overflow: hidden;}
+    video {width: 100%; max-height: 280px; border-radius: 16px;}
 
     .msg {
-      display: flex;
-      align-items: flex-start;
-      background: #1f1f1f;
-      padding: 12px;
-      border-radius: 14px;
-      margin: 10px 0;
-      text-align: left;
+      display: flex; align-items: flex-start; background: #1f1f1f; padding: 12px; border-radius: 14px; margin: 10px 0;
     }
     .avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
+      width: 36px; height: 36px; border-radius: 50%;
       background: linear-gradient(135deg, #ff00aa, #00ffff);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-right: 12px;
-      font-size: 18px;
-      font-weight: bold;
+      display: flex; justify-content: center; align-items: center;
+      margin-right: 12px; font-size: 18px; font-weight: bold;
     }
-
-    #chat {
-      max-height: 45vh;
-      overflow-y: auto;
-      padding-bottom: 80px;
-    }
+    #chat {max-height: 45vh; overflow-y: auto; text-align: left; padding-bottom: 80px;}
   </style>
 </head>
 <body>
@@ -98,10 +42,12 @@
   <h2 id="roomCode">Нет комнаты</h2>
   <hr>
 
-  <input id="videoInput" placeholder="YouTube или MP4 ссылка">
-  <button onclick="setVideo()">Поставить видео</button>
+  <input id="videoInput" placeholder="Или вставь ссылку">
+  <button onclick="setVideo()">Поставить по ссылке</button>
+  <br>
+  <button onclick="uploadVideo()">📤 Загрузить своё видео</button>
 
-  <div class="controls">
+  <div class="controls" style="margin:15px 0">
     <button onclick="playVideo()">▶ Play</button>
     <button onclick="pauseVideo()">⏸ Pause</button>
   </div>
@@ -115,6 +61,7 @@
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 
   <script>
     const firebaseConfig = {
@@ -128,6 +75,7 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const storage = firebase.storage();
 
     let roomCode = "", isHost = false;
     let currentVideo = { url: "", playing: false };
@@ -137,58 +85,65 @@
       isHost = true;
       document.getElementById("roomCode").innerText = `Комната: ${roomCode}`;
       db.collection("rooms").doc(roomCode).set({ video: currentVideo });
-      listenRoom();
-      listenChat();
+      listenRoom(); listenChat();
     }
 
     function joinRoom() {
       roomCode = document.getElementById("roomInput").value.trim();
-      if (!roomCode) return alert("Введите код комнаты!");
+      if (!roomCode) return alert("Введите код!");
       isHost = false;
       document.getElementById("roomCode").innerText = `Комната: ${roomCode}`;
-      listenRoom();
-      listenChat();
+      listenRoom(); listenChat();
+    }
+
+    async function uploadVideo() {
+      if (!isHost) return alert("Только хозяин может загружать видео");
+
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'video/*';
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const ref = storage.ref('videos/' + Date.now() + '_' + file.name);
+        const task = ref.put(file);
+
+        task.on('state_changed', 
+          () => {}, 
+          (error) => alert("Ошибка загрузки: " + error.message),
+          async () => {
+            const url = await ref.getDownloadURL();
+            currentVideo.url = url;
+            currentVideo.playing = true;
+            db.collection("rooms").doc(roomCode).update({ video: currentVideo });
+            alert("Видео загружено!");
+          }
+        );
+      };
+      input.click();
     }
 
     function setVideo() {
-      if (!isHost) return alert("Только хозяин может менять видео");
+      if (!isHost) return alert("Только хозяин может ставить видео");
       currentVideo.url = document.getElementById("videoInput").value.trim();
       currentVideo.playing = true;
       db.collection("rooms").doc(roomCode).update({ video: currentVideo });
     }
 
-    function playVideo() {
-      if (!isHost) return;
-      currentVideo.playing = true;
-      db.collection("rooms").doc(roomCode).update({ video: currentVideo });
-    }
-
-    function pauseVideo() {
-      if (!isHost) return;
-      currentVideo.playing = false;
-      db.collection("rooms").doc(roomCode).update({ video: currentVideo });
-    }
+    function playVideo() { if(isHost) { currentVideo.playing = true; db.collection("rooms").doc(roomCode).update({video: currentVideo}); }}
+    function pauseVideo() { if(isHost) { currentVideo.playing = false; db.collection("rooms").doc(roomCode).update({video: currentVideo}); }}
 
     function renderVideo(v) {
       const box = document.getElementById("videoBox");
       if (!v.url) {
-        box.innerHTML = "<p style='color:#888;padding:80px 20px;'>Видео ещё не поставлено</p>";
+        box.innerHTML = "<p style='color:#666; padding:60px;'>Видео не поставлено</p>";
         return;
       }
-
-      // Проверка на YouTube
-      if (v.url.includes("youtube") || v.url.includes("youtu.be")) {
-        const id = v.url.includes("youtu.be") ? v.url.split("/").pop().split("?")[0] : new URL(v.url).searchParams.get("v");
-        box.innerHTML = `<iframe width="100%" height="260" src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&modestbranding=1" frameborder="0" allowfullscreen></iframe>`;
-      } 
-      // Обычное видео (MP4)
-      else {
-        box.innerHTML = `
-          <video width="100%" height="260" controls autoplay>
-            <source src="${v.url}" type="video/mp4">
-            Ваш браузер не поддерживает видео.
-          </video>`;
-      }
+      box.innerHTML = `
+        <video width="100%" height="260" controls autoplay>
+          <source src="${v.url}">
+        </video>`;
     }
 
     function listenRoom() {
@@ -204,25 +159,21 @@
       const text = document.getElementById("msgInput").value.trim();
       if (!text) return;
       db.collection("rooms").doc(roomCode).collection("chat").add({
-        text,
-        avatar: String.fromCharCode(65 + Math.floor(Math.random()*26)),
-        time: Date.now()
+        text, avatar: String.fromCharCode(65 + Math.floor(Math.random()*26)), time: Date.now()
       });
       document.getElementById("msgInput").value = "";
     }
 
     function listenChat() {
-      db.collection("rooms").doc(roomCode).collection("chat")
-        .orderBy("time")
-        .onSnapshot(snap => {
-          const chat = document.getElementById("chat");
-          chat.innerHTML = "";
-          snap.forEach(d => {
-            const m = d.data();
-            chat.innerHTML += `<div class="msg"><div class="avatar">${m.avatar}</div><div>${m.text}</div></div>`;
-          });
-          chat.scrollTop = chat.scrollHeight;
+      db.collection("rooms").doc(roomCode).collection("chat").orderBy("time").onSnapshot(snap => {
+        const chat = document.getElementById("chat");
+        chat.innerHTML = "";
+        snap.forEach(d => {
+          const m = d.data();
+          chat.innerHTML += `<div class="msg"><div class="avatar">${m.avatar}</div><div>${m.text}</div></div>`;
         });
+        chat.scrollTop = chat.scrollHeight;
+      });
     }
   </script>
 </body>
