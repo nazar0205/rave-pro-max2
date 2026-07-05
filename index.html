@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Rave PRO MAX</title>
+  <title>Rave PRO MAX - Фильмы</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,7 +13,7 @@
       margin: 0;
       padding: 10px;
     }
-    h1 { margin: 15px 0 20px; font-size: 2.1em; }
+    h1 { margin: 15px 0 20px; font-size: 2em; color: #ff00aa; }
     
     input, button {
       padding: 14px;
@@ -41,18 +41,18 @@
       background: #000;
       border-radius: 16px;
       overflow: hidden;
-      min-height: 260px;
     }
 
-    iframe {
+    video {
       width: 100%;
-      height: 260px;
+      max-height: 300px;
       border-radius: 16px;
     }
   </style>
 </head>
 <body>
   <h1>🎬 RAVE PRO MAX</h1>
+  <p style="color:#aaa; margin-top:-10px;">Фильмы по прямым ссылкам</p>
 
   <input id="roomInput" placeholder="Код комнаты">
   <button onclick="joinRoom()">Войти</button>
@@ -61,8 +61,8 @@
   <h2 id="roomCode">Нет комнаты</h2>
   <hr>
 
-  <input id="videoInput" placeholder="Вставь ссылку YouTube">
-  <button onclick="setVideo()">Поставить видео</button>
+  <input id="videoInput" placeholder="Вставь прямую MP4 ссылку">
+  <button onclick="setVideo()">Поставить фильм</button>
 
   <div style="margin:15px 0">
     <button onclick="playVideo()">▶ Play</button>
@@ -114,7 +114,7 @@
     }
 
     function setVideo() {
-      if (!isHost) return alert("Только хозяин может ставить видео");
+      if (!isHost) return alert("Только хозяин может ставить фильм");
       currentVideo.url = document.getElementById("videoInput").value.trim();
       currentVideo.playing = true;
       db.collection("rooms").doc(roomCode).update({ video: currentVideo });
@@ -135,12 +135,15 @@
     function renderVideo(v) {
       const box = document.getElementById("videoBox");
       if (!v.url) {
-        box.innerHTML = "<p style='color:#666; padding:60px;'>Видео ещё не поставлено</p>";
+        box.innerHTML = "<p style='color:#666; padding:80px 20px;'>Фильм ещё не поставлен</p>";
         return;
       }
 
-      const id = v.url.includes("youtu.be") ? v.url.split("/").pop().split("?")[0] : new URL(v.url).searchParams.get("v");
-      box.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&modestbranding=1" frameborder="0" allowfullscreen></iframe>`;
+      box.innerHTML = `
+        <video width="100%" height="280" controls autoplay>
+          <source src="${v.url}" type="video/mp4">
+          Ваш браузер не поддерживает видео.
+        </video>`;
     }
 
     function listenRoom() {
