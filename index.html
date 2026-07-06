@@ -1,582 +1,450 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Rave PRO MAX</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0a0a0a;
-      color: white;
-      text-align: center;
-      margin: 0;
-      padding: 10px;
-    }
-    h1 { margin: 15px 0 20px; font-size: 2em; color: #ff00aa; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Читаем вместе 📖</title>
+<style>
+  :root{
+    --bg:#f7f3ea;
+    --panel:#ffffff;
+    --accent:#5b6ee1;
+    --accent-dark:#4453b8;
+    --text:#2b2b2b;
+    --border:#e3ddcf;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Georgia","Times New Roman",serif;
+    background:var(--bg);
+    color:var(--text);
+    height:100vh;
+    overflow:hidden;
+  }
+  #setup-screen{
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:16px;
+    padding:20px;
+    text-align:center;
+  }
+  #setup-screen h1{margin:0 0 10px 0;font-size:28px;}
+  #setup-screen p{color:#666;margin:0 0 10px 0;max-width:400px;}
+  .setup-box{
+    background:var(--panel);
+    padding:30px;
+    border-radius:16px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.08);
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    width:100%;
+    max-width:360px;
+  }
+  input, button, textarea{
+    font-family:inherit;
+    font-size:15px;
+  }
+  .setup-box input{
+    padding:10px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    outline:none;
+  }
+  .setup-box input:focus{border-color:var(--accent);}
+  .setup-box button{
+    padding:11px;
+    border:none;
+    border-radius:8px;
+    background:var(--accent);
+    color:white;
+    cursor:pointer;
+    font-weight:600;
+    transition:background .15s;
+  }
+  .setup-box button:hover{background:var(--accent-dark);}
+  .setup-box small{color:#888;}
 
-    input, button {
-      padding: 14px;
-      margin: 6px;
-      border-radius: 12px;
-      font-size: 16px;
-    }
-    input { background: #1f1f1f; color: white; border: none; width: 240px; }
-    button { background: #ff00aa; color: white; border: none; font-weight: bold; }
-    button:active { transform: scale(0.95); }
+  #main-screen{
+    display:none;
+    height:100vh;
+    flex-direction:column;
+  }
+  header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    padding:10px 16px;
+    background:var(--panel);
+    border-bottom:1px solid var(--border);
+  }
+  header .room-badge{
+    background:var(--bg);
+    padding:6px 10px;
+    border-radius:8px;
+    font-size:13px;
+    color:#555;
+    border:1px solid var(--border);
+  }
+  header button, header label.upload-btn{
+    padding:7px 12px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    border-radius:8px;
+    cursor:pointer;
+    font-size:14px;
+  }
+  header button:hover, header label.upload-btn:hover{background:var(--bg);}
+  header .spacer{flex:1;}
+  #page-indicator{font-size:14px;color:#555;min-width:70px;text-align:center;}
 
-    #videoBox { margin: 20px auto; max-width: 100%; background: #000; border-radius: 16px; overflow: hidden; }
-    video { width: 100%; max-height: 300px; border-radius: 16px; }
+  .container{
+    flex:1;
+    display:flex;
+    overflow:hidden;
+  }
+  #reader{
+    flex:1 1 65%;
+    display:flex;
+    flex-direction:column;
+    padding:20px 30px;
+    overflow:hidden;
+    position:relative;
+    border-right:1px solid var(--border);
+  }
+  #book-text{
+    flex:1;
+    overflow-y:auto;
+    line-height:1.7;
+    font-size:19px;
+    white-space:pre-wrap;
+    padding-right:10px;
+  }
+  .nav-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-top:14px;
+  }
+  .nav-row button{
+    padding:9px 18px;
+    border:none;
+    background:var(--accent);
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:15px;
+  }
+  .nav-row button:disabled{background:#c9cbe0;cursor:not-allowed;}
 
-    #presenceBar {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      margin: 10px 0;
-    }
-    .presenceChip {
-      background: #1f1f1f;
-      border: 1px solid #ff00aa55;
-      border-radius: 20px;
-      padding: 6px 14px;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #33ff88;
-      display: inline-block;
-    }
-
-    #roomBar {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin: 12px auto;
-    }
-    #roomBar.active { display: flex; }
-    #roomCodeText {
-      font-size: 1.3em;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-    #roomCodeText span { color: #ff00aa; }
-    .copyBtn {
-      background: #1f1f1f;
-      border: 1px solid #ff00aa55;
-      color: white;
-      padding: 8px 14px;
-      margin: 0;
-      border-radius: 10px;
-      font-size: 13px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.15s, transform 0.1s;
-    }
-    .copyBtn:active { transform: scale(0.94); }
-    .copyBtn.copied {
-      background: #1d3a2a;
-      border-color: #33ff8877;
-      color: #7dffb0;
-    }
-
-    #chat {
-      height: 360px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background: #141414;
-      border: 1px solid #262626;
-      border-radius: 16px;
-      padding: 14px;
-      scroll-behavior: smooth;
-    }
-    #chat::-webkit-scrollbar { width: 6px; }
-    #chat::-webkit-scrollbar-thumb { background: #333; border-radius: 6px; }
-
-    #chat:empty::before {
-      content: "Сообщений пока нет. Напиши первым!";
-      color: #555;
-      font-size: 13px;
-      margin: auto;
-    }
-
-    @keyframes msgIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .msg {
-      display: flex;
-      align-items: flex-end;
-      gap: 8px;
-      max-width: 85%;
-      animation: msgIn 0.18s ease-out;
-    }
-    .msg.own { flex-direction: row-reverse; align-self: flex-end; }
-    .msg.other { align-self: flex-start; }
-    .msg.grouped { margin-top: -4px; }
-
-    .avatar {
-      width: 30px; height: 30px; border-radius: 50%;
-      color: white; font-weight: bold;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; font-size: 12px;
-    }
-    .avatar.spacer { visibility: hidden; }
-
-    .bubble {
-      background: #232323;
-      padding: 8px 12px;
-      border-radius: 14px;
-      border-bottom-left-radius: 4px;
-      min-width: 40px;
-    }
-    .msg.own .bubble {
-      background: #ff00aa;
-      border-bottom-left-radius: 14px;
-      border-bottom-right-radius: 4px;
-    }
-    .msg.grouped .bubble { border-radius: 14px; }
-
-    .msgName {
-      font-size: 11px;
-      font-weight: bold;
-      margin-bottom: 3px;
-      opacity: 0.9;
-    }
-    .msgText {
-      font-size: 14px;
-      line-height: 1.35;
-      word-break: break-word;
-      white-space: pre-wrap;
-    }
-    .msgTime {
-      font-size: 10px;
-      opacity: 0.55;
-      margin-top: 4px;
-      text-align: right;
-    }
-
-    #typingIndicator {
-      max-width: 500px;
-      margin: 6px auto 0;
-      text-align: left;
-      font-size: 12px;
-      color: #999;
-      min-height: 16px;
-      padding-left: 4px;
-      font-style: italic;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .typingDots span {
-      display: inline-block;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: #ff00aa;
-      margin-right: 2px;
-      animation: typingBounce 1.2s infinite ease-in-out;
-    }
-    .typingDots span:nth-child(2) { animation-delay: 0.15s; }
-    .typingDots span:nth-child(3) { animation-delay: 0.3s; }
-    @keyframes typingBounce {
-      0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-      30% { transform: translateY(-3px); opacity: 1; }
-    }
-
-    .chatInputRow {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-      align-items: center;
-    }
-    .chatInputRow input {
-      flex: 1;
-      width: auto;
-      margin: 0;
-    }
-    .chatInputRow button {
-      margin: 0;
-      padding: 14px 18px;
-    }
-
-    #videoError { color: #ff5555; font-size: 13px; padding: 0 10px; }
-  </style>
+  #chat{
+    flex:0 0 35%;
+    display:flex;
+    flex-direction:column;
+    background:var(--panel);
+    max-width:380px;
+  }
+  #messages{
+    flex:1;
+    overflow-y:auto;
+    padding:14px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    font-family:Arial, sans-serif;
+  }
+  .msg{
+    max-width:85%;
+    padding:8px 12px;
+    border-radius:12px;
+    background:var(--bg);
+    font-size:14px;
+    line-height:1.4;
+    word-wrap:break-word;
+  }
+  .msg .name{font-weight:700;font-size:12px;color:var(--accent-dark);display:block;margin-bottom:2px;}
+  .msg.me{align-self:flex-end;background:#dfe3ff;}
+  #chat-form{
+    display:flex;
+    gap:8px;
+    padding:10px;
+    border-top:1px solid var(--border);
+  }
+  #chat-input{
+    flex:1;
+    padding:10px 12px;
+    border:1px solid var(--border);
+    border-radius:20px;
+    outline:none;
+    font-family:Arial, sans-serif;
+  }
+  #chat-form button{
+    padding:0 16px;
+    border:none;
+    background:var(--accent);
+    color:white;
+    border-radius:20px;
+    cursor:pointer;
+  }
+  @media (max-width:760px){
+    .container{flex-direction:column;}
+    #reader{border-right:none;border-bottom:1px solid var(--border);flex:1 1 55%;}
+    #chat{flex:1 1 45%;max-width:none;}
+  }
+</style>
 </head>
 <body>
-  <h1>🎬 RAVE PRO MAX</h1>
 
-  <input id="nameInput" placeholder="Ваше имя">
-  <br>
-  <input id="roomInput" placeholder="Код комнаты">
-  <button onclick="joinRoom()">Войти</button>
-  <button onclick="createRoom()">Создать</button>
-
-  <div id="roomBar">
-    <div id="roomCodeText">Комната: <span id="roomCodeValue"></span></div>
-    <button class="copyBtn" id="copyBtn" onclick="copyRoomCode()">
-      <span id="copyIcon">📋</span><span id="copyLabel">Скопировать</span>
-    </button>
+<div id="setup-screen">
+  <h1>📖 Читаем вместе</h1>
+  <p>Введите один и тот же код комнаты у себя и у друга — книга и страницы будут синхронизированы онлайн, рядом есть чат.</p>
+  <div class="setup-box">
+    <input id="room-input" placeholder="Код комнаты (например: kniga123)" />
+    <input id="name-input" placeholder="Ваше имя" />
+    <button id="join-btn">Войти в комнату</button>
+    <small>Если комнаты с таким кодом ещё нет — она создастся автоматически.</small>
   </div>
-  <h2 id="roomCode">Нет комнаты</h2>
+</div>
 
-  <div id="presenceBar"></div>
-  <hr>
+<div id="main-screen">
+  <header>
+    <span class="room-badge">Комната: <b id="room-label"></b></span>
+    <label class="upload-btn">
+      📂 Загрузить книгу (.txt)
+      <input type="file" id="file-input" accept=".txt" style="display:none;">
+    </label>
+    <button id="font-minus">A−</button>
+    <button id="font-plus">A+</button>
+    <div class="spacer"></div>
+    <button id="leave-btn">Выйти</button>
+  </header>
 
-  <input id="videoInput" placeholder="Прямая MP4 ссылка">
-  <button onclick="setVideo()">Поставить фильм</button>
-
-  <div style="margin:15px 0">
-    <button onclick="playVideo()">▶ Play</button>
-    <button onclick="pauseVideo()">⏸ Pause</button>
-  </div>
-
-  <div id="videoBox"></div>
-  <hr>
-
-  <div id="chatWrap">
-    <div id="chat"></div>
-    <div id="typingIndicator"></div>
-    <div class="chatInputRow">
-      <input id="msgInput" placeholder="Сообщение..." onkeypress="if(event.key==='Enter') sendMsg()" oninput="handleTyping()">
-      <button onclick="sendMsg()">➤</button>
+  <div class="container">
+    <div id="reader">
+      <div id="book-text">Загрузите файл .txt с текстом книги — он появится у обоих читателей.</div>
+      <div class="nav-row">
+        <button id="prev-btn">← Назад</button>
+        <span id="page-indicator">— / —</span>
+        <button id="next-btn">Вперёд →</button>
+      </div>
+    </div>
+    <div id="chat">
+      <div id="messages"></div>
+      <form id="chat-form">
+        <input id="chat-input" placeholder="Написать сообщение..." autocomplete="off">
+        <button type="submit">➤</button>
+      </form>
     </div>
   </div>
+</div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCdz7f48TYJCH-ourCeeMi3C7ZmSEOr9NU",
-      authDomain: "rave-clone-2.firebaseapp.com",
-      projectId: "rave-clone-2",
-      storageBucket: "rave-clone-2.appspot.com",
-      messagingSenderId: "112111623912",
-      appId: "1:112111623912:web:85fc83553bea1a35c2735d"
-    };
+<script>
+// ===== Firebase config =====
+const firebaseConfig = {
+  apiKey: "AIzaSyCdz7f48TYJCH-ourCeeMi3C7ZmSEOr9NU",
+  authDomain: "rave-clone-2.firebaseapp.com",
+  projectId: "rave-clone-2",
+  storageBucket: "rave-clone-2.firebasestorage.app",
+  messagingSenderId: "112111623912",
+  appId: "1:112111623912:web:85fc83553bea1a35c2735d",
+  measurementId: "G-B1Y6LD8858"
+};
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-    let roomCode = "";
-    let videoElement = null;
-    let lastVideoUrl = "";
-    let applyingRemoteUpdate = false;
-    let presenceTimer = null;
-    let heartbeatTimer = null;
+// ===== State =====
+let roomId = null;
+let userName = null;
+let pages = [];
+let currentPage = 0;
+let roomRef = null;
+let unsubRoom = null;
+let unsubChat = null;
+let fontSize = 19;
 
-    // --- Пользователь ---
-    let userId = localStorage.getItem("rave_uid");
-    if (!userId) {
-      userId = Math.random().toString(36).slice(2) + Date.now().toString(36);
-      localStorage.setItem("rave_uid", userId);
+// ===== Elements =====
+const setupScreen = document.getElementById('setup-screen');
+const mainScreen = document.getElementById('main-screen');
+const roomInput = document.getElementById('room-input');
+const nameInput = document.getElementById('name-input');
+const joinBtn = document.getElementById('join-btn');
+const roomLabel = document.getElementById('room-label');
+const bookText = document.getElementById('book-text');
+const pageIndicator = document.getElementById('page-indicator');
+const prevBtn = document.getElementById('prev-btn');
+const nextBtn = document.getElementById('next-btn');
+const fileInput = document.getElementById('file-input');
+const leaveBtn = document.getElementById('leave-btn');
+const fontMinus = document.getElementById('font-minus');
+const fontPlus = document.getElementById('font-plus');
+const messagesEl = document.getElementById('messages');
+const chatForm = document.getElementById('chat-form');
+const chatInput = document.getElementById('chat-input');
+
+// Restore saved name
+nameInput.value = localStorage.getItem('reader_name') || '';
+roomInput.value = localStorage.getItem('reader_room') || '';
+
+// ===== Join room =====
+joinBtn.addEventListener('click', joinRoom);
+roomInput.addEventListener('keydown', e => { if(e.key==='Enter') joinRoom(); });
+nameInput.addEventListener('keydown', e => { if(e.key==='Enter') joinRoom(); });
+
+async function joinRoom(){
+  const rId = roomInput.value.trim();
+  const name = nameInput.value.trim();
+  if(!rId || !name){
+    alert('Пожалуйста, укажите код комнаты и своё имя.');
+    return;
+  }
+  roomId = rId;
+  userName = name;
+  localStorage.setItem('reader_name', name);
+  localStorage.setItem('reader_room', rId);
+
+  roomRef = db.collection('rooms').doc(roomId);
+  const snap = await roomRef.get();
+  if(!snap.exists){
+    await roomRef.set({
+      pages: ["Комната создана! Загрузите файл .txt с книгой — текст появится у обоих участников.", ],
+      currentPage: 0,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+
+  roomLabel.textContent = roomId;
+  setupScreen.style.display = 'none';
+  mainScreen.style.display = 'flex';
+
+  listenToRoom();
+  listenToChat();
+}
+
+leaveBtn.addEventListener('click', () => {
+  if(unsubRoom) unsubRoom();
+  if(unsubChat) unsubChat();
+  mainScreen.style.display = 'none';
+  setupScreen.style.display = 'flex';
+});
+
+// ===== Sync book & page =====
+function listenToRoom(){
+  unsubRoom = roomRef.onSnapshot(doc => {
+    const data = doc.data();
+    if(!data) return;
+    pages = data.pages || [];
+    currentPage = data.currentPage || 0;
+    renderPage();
+  });
+}
+
+function renderPage(){
+  if(pages.length === 0){
+    bookText.textContent = 'Пока нет текста. Загрузите файл .txt.';
+    pageIndicator.textContent = '— / —';
+    return;
+  }
+  if(currentPage < 0) currentPage = 0;
+  if(currentPage > pages.length-1) currentPage = pages.length-1;
+  bookText.textContent = pages[currentPage];
+  pageIndicator.textContent = (currentPage+1) + ' / ' + pages.length;
+  prevBtn.disabled = currentPage === 0;
+  nextBtn.disabled = currentPage === pages.length-1;
+}
+
+prevBtn.addEventListener('click', () => changePage(-1));
+nextBtn.addEventListener('click', () => changePage(1));
+
+async function changePage(delta){
+  const newPage = currentPage + delta;
+  if(newPage < 0 || newPage > pages.length-1) return;
+  await roomRef.update({ currentPage: newPage });
+}
+
+document.addEventListener('keydown', (e) => {
+  if(mainScreen.style.display !== 'flex') return;
+  if(document.activeElement === chatInput) return;
+  if(e.key === 'ArrowRight') changePage(1);
+  if(e.key === 'ArrowLeft') changePage(-1);
+});
+
+// ===== Font size =====
+fontPlus.addEventListener('click', () => { fontSize = Math.min(fontSize+2, 34); bookText.style.fontSize = fontSize+'px'; });
+fontMinus.addEventListener('click', () => { fontSize = Math.max(fontSize-2, 12); bookText.style.fontSize = fontSize+'px'; });
+
+// ===== Upload .txt file and split into pages =====
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    const text = ev.target.result;
+    const newPages = splitIntoPages(text, 1600);
+    await roomRef.update({ pages: newPages, currentPage: 0 });
+  };
+  reader.readAsText(file, 'UTF-8');
+});
+
+function splitIntoPages(text, chunkSize){
+  const paragraphs = text.split(/\n+/);
+  const result = [];
+  let current = '';
+  for(const p of paragraphs){
+    if((current + '\n\n' + p).length > chunkSize && current.length > 0){
+      result.push(current.trim());
+      current = p;
+    } else {
+      current = current ? current + '\n\n' + p : p;
     }
-    let userName = localStorage.getItem("rave_name") || "";
-    document.getElementById("nameInput").value = userName;
+  }
+  if(current.trim()) result.push(current.trim());
+  return result.length ? result : ['(Пустой файл)'];
+}
 
-    function getName() {
-      const v = document.getElementById("nameInput").value.trim();
-      userName = v || "Гость";
-      localStorage.setItem("rave_name", userName);
-      return userName;
-    }
-
-    function escapeHtml(str) {
-      const div = document.createElement("div");
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
-    function colorFromName(name) {
-      let hash = 0;
-      for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-      const hue = Math.abs(hash) % 360;
-      return `hsl(${hue}, 70%, 55%)`;
-    }
-
-    function formatTime(ts) {
-      const d = new Date(ts);
-      return d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0");
-    }
-
-    // --- Комната ---
-    function showRoomCode() {
-      document.getElementById("roomCode").style.display = "none";
-      document.getElementById("roomCodeValue").innerText = roomCode;
-      document.getElementById("roomBar").classList.add("active");
-    }
-
-    function copyRoomCode() {
-      navigator.clipboard.writeText(roomCode).then(() => {
-        const btn = document.getElementById("copyBtn");
-        const icon = document.getElementById("copyIcon");
-        const label = document.getElementById("copyLabel");
-        btn.classList.add("copied");
-        icon.innerText = "✓";
-        label.innerText = "Скопировано";
-        setTimeout(() => {
-          btn.classList.remove("copied");
-          icon.innerText = "📋";
-          label.innerText = "Скопировать";
-        }, 1800);
-      }).catch(() => alert("Код комнаты: " + roomCode));
-    }
-
-    function createRoom() {
-      getName();
-      roomCode = Math.floor(10000 + Math.random() * 90000).toString();
-      showRoomCode();
-      db.collection("rooms").doc(roomCode).set({
-        video: { url: "", playing: false, currentTime: 0 }
+// ===== Chat =====
+function listenToChat(){
+  unsubChat = roomRef.collection('messages')
+    .orderBy('createdAt', 'asc')
+    .limitToLast(100)
+    .onSnapshot(snap => {
+      messagesEl.innerHTML = '';
+      snap.forEach(doc => {
+        const m = doc.data();
+        const div = document.createElement('div');
+        div.className = 'msg' + (m.name === userName ? ' me' : '');
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'name';
+        nameSpan.textContent = m.name;
+        const textNode = document.createTextNode(m.text);
+        div.appendChild(nameSpan);
+        div.appendChild(textNode);
+        messagesEl.appendChild(div);
       });
-      startRoom();
-    }
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
+}
 
-    function joinRoom() {
-      getName();
-      roomCode = document.getElementById("roomInput").value.trim();
-      if (!roomCode) return alert("Введите код комнаты!");
-      showRoomCode();
-      startRoom();
-    }
-
-    function startRoom() {
-      listenRoom();
-      listenChat();
-      startPresence();
-      listenTyping();
-    }
-
-    // --- "Печатает..." ---
-    let typingTimeout = null;
-    let lastTypingWrite = 0;
-
-    function handleTyping() {
-      const now = Date.now();
-      if (now - lastTypingWrite > 1500) {
-        lastTypingWrite = now;
-        db.collection("rooms").doc(roomCode).collection("typing").doc(userId).set({
-          name: userName,
-          time: Date.now()
-        });
-      }
-      clearTimeout(typingTimeout);
-      typingTimeout = setTimeout(() => {
-        db.collection("rooms").doc(roomCode).collection("typing").doc(userId).delete();
-      }, 2500);
-    }
-
-    function listenTyping() {
-      db.collection("rooms").doc(roomCode).collection("typing")
-        .onSnapshot(snap => {
-          const now = Date.now();
-          const names = [];
-          snap.forEach(d => {
-            if (d.id === userId) return;
-            const t = d.data();
-            if (now - t.time < 4000) names.push(t.name);
-          });
-
-          const box = document.getElementById("typingIndicator");
-          if (names.length === 0) {
-            box.innerHTML = "";
-          } else {
-            const text = names.length === 1
-              ? `${escapeHtml(names[0])} печатает`
-              : `${names.map(escapeHtml).join(", ")} печатают`;
-            box.innerHTML = `${text}<span class="typingDots"><span></span><span></span><span></span></span>`;
-          }
-        });
-    }
-
-    // --- Presence ---
-    function startPresence() {
-      if (presenceTimer) presenceTimer();
-      if (heartbeatTimer) clearInterval(heartbeatTimer);
-
-      const sendHeartbeat = () => {
-        db.collection("rooms").doc(roomCode).collection("presence").doc(userId).set({
-          name: userName,
-          lastSeen: Date.now()
-        });
-      };
-      sendHeartbeat();
-      heartbeatTimer = setInterval(sendHeartbeat, 8000);
-
-      window.addEventListener("beforeunload", () => {
-        db.collection("rooms").doc(roomCode).collection("presence").doc(userId).delete();
-      });
-
-      presenceTimer = db.collection("rooms").doc(roomCode).collection("presence")
-        .onSnapshot(snap => {
-          const bar = document.getElementById("presenceBar");
-          bar.innerHTML = "";
-          const now = Date.now();
-          snap.forEach(d => {
-            const p = d.data();
-            if (now - p.lastSeen < 20000) {
-              bar.innerHTML += `<div class="presenceChip"><span class="dot"></span>${escapeHtml(p.name)}</div>`;
-            }
-          });
-        });
-    }
-
-    // --- Видео: постановка фильма ---
-    function setVideo() {
-      const url = document.getElementById("videoInput").value.trim();
-      if (!url) return;
-      db.collection("rooms").doc(roomCode).update({
-        video: { url, playing: true, currentTime: 0, updatedAt: Date.now(), by: userId }
-      });
-    }
-
-    function pushVideoState(playing) {
-      if (!videoElement || applyingRemoteUpdate) return;
-      db.collection("rooms").doc(roomCode).update({
-        "video.playing": playing,
-        "video.currentTime": videoElement.currentTime,
-        "video.updatedAt": Date.now(),
-        "video.by": userId
-      });
-    }
-
-    function playVideo() { if (videoElement) videoElement.play(); }
-    function pauseVideo() { if (videoElement) videoElement.pause(); }
-
-    function renderVideo(v) {
-      const box = document.getElementById("videoBox");
-      if (!v.url) {
-        box.innerHTML = "<p style='color:#666; padding:80px 20px;'>Фильм ещё не поставлен</p>";
-        lastVideoUrl = "";
-        return;
-      }
-
-      const isNewVideo = v.url !== lastVideoUrl;
-
-      if (isNewVideo) {
-        lastVideoUrl = v.url;
-        box.innerHTML = `
-          <video id="mainVideo" width="100%" height="280" controls>
-            <source src="${v.url}" type="video/mp4">
-          </video>
-          <p id="videoError"></p>`;
-        videoElement = document.getElementById("mainVideo");
-        attachVideoEvents();
-
-        videoElement.addEventListener("loadedmetadata", () => {
-          applyingRemoteUpdate = true;
-          videoElement.currentTime = v.currentTime || 0;
-          if (v.playing) videoElement.play().catch(() => {});
-          setTimeout(() => { applyingRemoteUpdate = false; }, 300);
-        }, { once: true });
-
-        videoElement.addEventListener("error", () => {
-          const err = videoElement.error;
-          let msg = "Не удалось загрузить видео.";
-          if (err) {
-            const map = { 1: "Загрузка прервана.", 2: "Ошибка сети (проверь ссылку и https).",
-                          3: "Файл повреждён или неподдерживаемый кодек.",
-                          4: "Ссылка не является прямым mp4-файлом." };
-            msg += " " + (map[err.code] || "");
-          }
-          document.getElementById("videoError").innerText = msg;
-        });
-      } else {
-        applyRemoteState(v);
-      }
-    }
-
-    function applyRemoteState(v) {
-      if (!videoElement || v.by === userId) return; // не применяем своё же изменение
-      applyingRemoteUpdate = true;
-
-      const diff = Math.abs(videoElement.currentTime - (v.currentTime || 0));
-      if (diff > 1.5) videoElement.currentTime = v.currentTime || 0;
-
-      if (v.playing && videoElement.paused) videoElement.play().catch(() => {});
-      if (!v.playing && !videoElement.paused) videoElement.pause();
-
-      setTimeout(() => { applyingRemoteUpdate = false; }, 300);
-    }
-
-    function attachVideoEvents() {
-      videoElement.addEventListener("play", () => pushVideoState(true));
-      videoElement.addEventListener("pause", () => pushVideoState(false));
-      videoElement.addEventListener("seeked", () => pushVideoState(!videoElement.paused));
-
-      // Периодический heartbeat времени, только пока видео играет
-      setInterval(() => {
-        if (videoElement && !videoElement.paused && !applyingRemoteUpdate) {
-          pushVideoState(true);
-        }
-      }, 5000);
-    }
-
-    function listenRoom() {
-      db.collection("rooms").doc(roomCode).onSnapshot(doc => {
-        if (doc.exists) renderVideo(doc.data().video || {});
-      });
-    }
-
-    // --- Чат ---
-    function sendMsg() {
-      const text = document.getElementById("msgInput").value.trim();
-      if (!text) return;
-      db.collection("rooms").doc(roomCode).collection("chat").add({
-        text,
-        name: userName,
-        uid: userId,
-        time: Date.now()
-      });
-      document.getElementById("msgInput").value = "";
-      clearTimeout(typingTimeout);
-      db.collection("rooms").doc(roomCode).collection("typing").doc(userId).delete();
-    }
-
-    function listenChat() {
-      db.collection("rooms").doc(roomCode).collection("chat")
-        .orderBy("time")
-        .onSnapshot(snap => {
-          const chat = document.getElementById("chat");
-          const wasNearBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 60;
-
-          chat.innerHTML = "";
-          let prevUid = null;
-          snap.forEach(d => {
-            const m = d.data();
-            const isOwn = m.uid === userId;
-            const name = m.name || "Гость";
-            const color = colorFromName(name);
-            const isGrouped = prevUid === m.uid;
-            prevUid = m.uid;
-
-            chat.innerHTML += `
-              <div class="msg ${isOwn ? "own" : "other"} ${isGrouped ? "grouped" : ""}">
-                <div class="avatar ${isGrouped ? "spacer" : ""}" style="background:${color}">${escapeHtml((name[0] || "?").toUpperCase())}</div>
-                <div class="bubble">
-                  ${(!isOwn && !isGrouped) ? `<div class="msgName" style="color:${color}">${escapeHtml(name)}</div>` : ""}
-                  <div class="msgText">${escapeHtml(m.text)}</div>
-                  <div class="msgTime">${formatTime(m.time)}</div>
-                </div>
-              </div>`;
-          });
-
-          if (wasNearBottom) chat.scrollTop = chat.scrollHeight;
-        });
-    }
-  </script>
+chatForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const text = chatInput.value.trim();
+  if(!text) return;
+  chatInput.value = '';
+  await roomRef.collection('messages').add({
+    name: userName,
+    text: text,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+});
+</script>
 </body>
 </html>
