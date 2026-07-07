@@ -3,247 +3,342 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Читаем вместе 📖</title>
+<title>Привычки вдвоём 🔥</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#f7f3ea;
-    --panel:#ffffff;
-    --accent:#5b6ee1;
-    --accent-dark:#4453b8;
-    --text:#2b2b2b;
-    --border:#e3ddcf;
+    --bg1:#0f0c29;
+    --bg2:#302b63;
+    --bg3:#24243e;
+    --panel:rgba(255,255,255,0.06);
+    --panel-solid:#181433;
+    --border:rgba(255,255,255,0.09);
+    --text:#f2f1fb;
+    --muted:#9d9bc2;
+    --accent:#7c6cf0;
+    --accent2:#f065b0;
+    --accent3:#4fd6c4;
+    --done:#3ddc97;
+    --gold:#ffc857;
+    --radius:20px;
+  }
+  body.light{
+    --bg1:#eef1fb;
+    --bg2:#e4e9fb;
+    --bg3:#f6f4ff;
+    --panel:rgba(255,255,255,0.75);
+    --panel-solid:#ffffff;
+    --border:rgba(30,25,60,0.08);
+    --text:#1c1a33;
+    --muted:#6c6a8c;
   }
   *{box-sizing:border-box;}
   body{
     margin:0;
-    font-family:"Georgia","Times New Roman",serif;
-    background:var(--bg);
+    min-height:100vh;
+    font-family:'Inter',sans-serif;
     color:var(--text);
-    height:100vh;
-    overflow:hidden;
+    background: radial-gradient(circle at 15% 20%, var(--bg2) 0%, transparent 45%),
+                radial-gradient(circle at 85% 15%, var(--accent2) 0%, transparent 35%),
+                radial-gradient(circle at 50% 90%, var(--accent3) 0%, transparent 40%),
+                var(--bg1);
+    background-attachment:fixed;
+    transition:background .3s, color .3s;
   }
+  h1,h2,.font-display{font-family:'Poppins',sans-serif;}
+
+  /* ---------- SETUP SCREEN ---------- */
   #setup-screen{
-    height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
-    gap:16px;
-    padding:20px;
-    text-align:center;
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    gap:18px;padding:20px;text-align:center;
   }
-  #setup-screen h1{margin:0 0 10px 0;font-size:28px;}
-  #setup-screen p{color:#666;margin:0 0 10px 0;max-width:400px;}
+  .logo-badge{
+    font-size:46px;
+    filter:drop-shadow(0 0 20px rgba(124,108,240,.6));
+  }
+  #setup-screen h1{margin:4px 0;font-size:30px;font-weight:800;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  #setup-screen p{color:var(--muted);margin:0 0 6px 0;max-width:380px;font-size:14.5px;}
   .setup-box{
     background:var(--panel);
+    backdrop-filter:blur(18px);
+    border:1px solid var(--border);
     padding:30px;
-    border-radius:16px;
-    box-shadow:0 4px 20px rgba(0,0,0,0.08);
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    width:100%;
-    max-width:360px;
+    border-radius:24px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+    display:flex;flex-direction:column;gap:12px;
+    width:100%;max-width:360px;
   }
-  input, button, textarea{
-    font-family:inherit;
-    font-size:15px;
-  }
+  input, button{font-family:inherit;font-size:15px;}
   .setup-box input{
-    padding:10px 12px;
+    padding:13px 14px;
     border:1px solid var(--border);
-    border-radius:8px;
+    border-radius:14px;
     outline:none;
+    background:rgba(255,255,255,0.04);
+    color:var(--text);
   }
+  body.light .setup-box input{background:#f5f4ff;}
+  .setup-box input::placeholder{color:var(--muted);}
   .setup-box input:focus{border-color:var(--accent);}
-  .setup-box button{
-    padding:11px;
-    border:none;
-    border-radius:8px;
-    background:var(--accent);
-    color:white;
-    cursor:pointer;
-    font-weight:600;
-    transition:background .15s;
+  .btn-primary{
+    padding:13px;border:none;border-radius:14px;cursor:pointer;font-weight:700;
+    color:#fff;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    box-shadow:0 8px 24px rgba(124,108,240,0.4);
+    transition:transform .15s;
   }
-  .setup-box button:hover{background:var(--accent-dark);}
-  .setup-box small{color:#888;}
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-primary:active{transform:translateY(0);}
+  .setup-box small{color:var(--muted);}
 
-  #main-screen{
-    display:none;
-    height:100vh;
-    flex-direction:column;
-  }
+  /* ---------- MAIN ---------- */
+  #main-screen{display:none;max-width:760px;margin:0 auto;padding:18px 16px 60px;position:relative;}
+
   header{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    flex-wrap:wrap;
-    padding:10px 16px;
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:14px 18px;
     background:var(--panel);
-    border-bottom:1px solid var(--border);
-  }
-  header .room-badge{
-    background:var(--bg);
-    padding:6px 10px;
-    border-radius:8px;
-    font-size:13px;
-    color:#555;
+    backdrop-filter:blur(18px);
     border:1px solid var(--border);
+    border-radius:18px;
+    margin-bottom:18px;
   }
-  header button, header label.upload-btn{
-    padding:7px 12px;
-    border:1px solid var(--border);
-    background:var(--panel);
-    border-radius:8px;
-    cursor:pointer;
-    font-size:14px;
+  .room-badge{
+    background:rgba(124,108,240,0.18);
+    color:var(--accent);
+    padding:7px 12px;border-radius:10px;font-size:13px;font-weight:600;
   }
-  header button:hover, header label.upload-btn:hover{background:var(--bg);}
   header .spacer{flex:1;}
-  #page-indicator{font-size:14px;color:#555;min-width:70px;text-align:center;}
+  .icon-btn{
+    width:38px;height:38px;
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid var(--border);
+    background:rgba(255,255,255,0.05);
+    border-radius:12px;cursor:pointer;font-size:16px;color:var(--text);
+  }
+  .icon-btn:hover{background:rgba(255,255,255,0.12);}
+  .text-btn{
+    padding:9px 14px;border:1px solid var(--border);
+    background:rgba(255,255,255,0.05);border-radius:12px;cursor:pointer;
+    font-size:13.5px;color:var(--text);font-weight:600;
+  }
+  .text-btn:hover{background:rgba(255,255,255,0.12);}
 
-  .container{
-    flex:1;
-    display:flex;
-    overflow:hidden;
+  /* ---------- STATS DASHBOARD ---------- */
+  .stats-row{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-bottom:18px;
   }
-  #reader{
-    flex:1 1 65%;
-    display:flex;
-    flex-direction:column;
-    padding:20px 30px;
-    overflow:hidden;
-    position:relative;
-    border-right:1px solid var(--border);
-  }
-  #book-text{
-    flex:1;
-    overflow-y:auto;
-    line-height:1.7;
-    font-size:19px;
-    white-space:pre-wrap;
-    padding-right:10px;
-  }
-  .nav-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding-top:14px;
-  }
-  .nav-row button{
-    padding:9px 18px;
-    border:none;
-    background:var(--accent);
-    color:white;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:15px;
-  }
-  .nav-row button:disabled{background:#c9cbe0;cursor:not-allowed;}
-
-  #chat{
-    flex:0 0 35%;
-    display:flex;
-    flex-direction:column;
+  .stat-card{
     background:var(--panel);
-    max-width:380px;
+    backdrop-filter:blur(18px);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:14px 10px;
+    text-align:center;
   }
-  #messages{
-    flex:1;
-    overflow-y:auto;
+  .stat-num{font-size:22px;font-weight:800;font-family:'Poppins',sans-serif;}
+  .stat-label{font-size:10.5px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
+  .stat-card.grad .stat-num{
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+
+  /* ---------- QUOTE ---------- */
+  .quote-banner{
+    background:linear-gradient(120deg,rgba(124,108,240,0.18),rgba(240,101,176,0.14));
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:12px 16px;
+    margin-bottom:18px;
+    font-size:13.5px;
+    color:var(--text);
+    display:flex;gap:10px;align-items:center;
+  }
+
+  /* ---------- ADD HABIT ---------- */
+  #add-habit-box{
+    background:var(--panel);
+    backdrop-filter:blur(18px);
+    border:1px solid var(--border);
+    border-radius:18px;
     padding:14px;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-    font-family:Arial, sans-serif;
+    margin-bottom:20px;
   }
-  .msg{
-    max-width:85%;
-    padding:8px 12px;
-    border-radius:12px;
-    background:var(--bg);
-    font-size:14px;
-    line-height:1.4;
-    word-wrap:break-word;
+  .emoji-quick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+  .emoji-quick button{
+    width:36px;height:36px;border-radius:10px;border:1px solid var(--border);
+    background:rgba(255,255,255,0.04);cursor:pointer;font-size:17px;
   }
-  .msg .name{font-weight:700;font-size:12px;color:var(--accent-dark);display:block;margin-bottom:2px;}
-  .msg.me{align-self:flex-end;background:#dfe3ff;}
-  #chat-form{
-    display:flex;
-    gap:8px;
-    padding:10px;
-    border-top:1px solid var(--border);
+  .emoji-quick button.active{background:rgba(124,108,240,0.35);border-color:var(--accent);}
+  .color-quick{display:flex;gap:6px;margin-bottom:10px;}
+  .color-dot{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+  .color-dot.active{border-color:#fff;}
+  .add-row{display:flex;gap:8px;}
+  .add-row input{
+    flex:1;padding:11px 13px;border:1px solid var(--border);border-radius:12px;outline:none;
+    background:rgba(255,255,255,0.04);color:var(--text);
   }
-  #chat-input{
-    flex:1;
-    padding:10px 12px;
+  body.light .add-row input{background:#f5f4ff;}
+  .add-row button{
+    padding:11px 18px;border:none;border-radius:12px;cursor:pointer;font-weight:700;color:#fff;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+  }
+
+  /* ---------- HABIT CARD ---------- */
+  .habit-card{
+    background:var(--panel);
+    backdrop-filter:blur(18px);
     border:1px solid var(--border);
     border-radius:20px;
-    outline:none;
-    font-family:Arial, sans-serif;
+    padding:18px;
+    margin-bottom:16px;
+    position:relative;
+    overflow:hidden;
   }
-  #chat-form button{
-    padding:0 16px;
-    border:none;
-    background:var(--accent);
-    color:white;
-    border-radius:20px;
-    cursor:pointer;
+  .habit-card::before{
+    content:'';
+    position:absolute;left:0;top:0;bottom:0;width:5px;
+    background:var(--habit-color, var(--accent));
   }
-  @media (max-width:760px){
-    .container{flex-direction:column;}
-    #reader{border-right:none;border-bottom:1px solid var(--border);flex:1 1 55%;}
-    #chat{flex:1 1 45%;max-width:none;}
+  .habit-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .habit-emoji{
+    font-size:24px;width:42px;height:42px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,0.06);
+    flex-shrink:0;
+  }
+  .habit-name{font-weight:700;font-size:16px;flex:1;font-family:'Poppins',sans-serif;}
+  .celebrate{
+    font-size:12px;font-weight:700;color:var(--gold);
+    background:rgba(255,200,87,0.15);padding:4px 9px;border-radius:20px;
+    animation:pulseGlow 1.4s infinite;
+  }
+  @keyframes pulseGlow{0%,100%{opacity:1;}50%{opacity:.55;}}
+  .del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 6px;}
+  .del-btn:hover{color:#e05a5a;}
+
+  .progress-track{
+    height:6px;border-radius:6px;background:rgba(255,255,255,0.08);
+    margin:8px 0 14px 0;overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;border-radius:6px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    transition:width .4s ease;
+  }
+
+  .member-row{display:flex;align-items:center;gap:10px;padding:7px 0;}
+  .avatar{
+    width:26px;height:26px;border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;color:#fff;
+  }
+  .member-name{
+    width:76px;font-size:12.5px;color:var(--muted);flex-shrink:0;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .days{display:flex;gap:6px;flex:1;}
+  .day-dot{
+    width:28px;height:28px;border-radius:9px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;color:var(--muted);flex-shrink:0;
+    transition:transform .15s;
+  }
+  .day-dot.done{
+    background:var(--habit-color, var(--done));
+    border-color:transparent;
+    color:#fff;font-weight:800;
+  }
+  .day-dot.today{cursor:pointer;box-shadow:0 0 0 2px rgba(255,255,255,0.3) inset;}
+  .day-dot.today:hover{transform:scale(1.12);}
+  .day-dot.pop{animation:pop .35s ease;}
+  @keyframes pop{0%{transform:scale(1);}45%{transform:scale(1.35);}100%{transform:scale(1);}}
+
+  .streak{font-size:12px;color:var(--muted);width:56px;text-align:right;flex-shrink:0;}
+  .streak b{color:var(--gold);font-weight:800;}
+  .streak-fire{margin-right:2px;}
+
+  .duo-streak{
+    margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);
+    font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px;
+  }
+  .duo-streak b{color:var(--accent3);}
+
+  .empty-state{
+    text-align:center;color:var(--muted);padding:50px 20px;
+    background:var(--panel);border-radius:20px;border:1px solid var(--border);
+  }
+
+  /* confetti */
+  .confetti{
+    position:fixed;top:-20px;font-size:20px;pointer-events:none;z-index:999;
+    animation:fall linear forwards;
+  }
+  @keyframes fall{
+    to{ transform:translateY(110vh) rotate(360deg); opacity:0.3; }
+  }
+
+  @media (max-width:480px){
+    .stats-row{grid-template-columns:repeat(2,1fr);}
+    .member-name{width:56px;font-size:11px;}
+    .day-dot{width:24px;height:24px;font-size:10px;}
+    .streak{width:42px;font-size:10.5px;}
   }
 </style>
 </head>
 <body>
 
 <div id="setup-screen">
-  <h1>📖 Читаем вместе</h1>
-  <p>Введите один и тот же код комнаты у себя и у друга — книга и страницы будут синхронизированы онлайн, рядом есть чат.</p>
+  <div class="logo-badge">🔥</div>
+  <h1>Привычки вдвоём</h1>
+  <p>Один код комнаты на двоих — общий список привычек, стрики и мотивация в реальном времени.</p>
   <div class="setup-box">
-    <input id="room-input" placeholder="Код комнаты (например: kniga123)" />
+    <input id="room-input" placeholder="Код комнаты (например: habits123)" />
     <input id="name-input" placeholder="Ваше имя" />
-    <button id="join-btn">Войти в комнату</button>
-    <small>Если комнаты с таким кодом ещё нет — она создастся автоматически.</small>
+    <button id="join-btn" class="btn-primary">Войти в комнату →</button>
+    <small>Если комнаты ещё нет — она создастся автоматически.</small>
   </div>
 </div>
 
 <div id="main-screen">
   <header>
-    <span class="room-badge">Комната: <b id="room-label"></b></span>
-    <label class="upload-btn">
-      📂 Загрузить книгу (.txt)
-      <input type="file" id="file-input" accept=".txt" style="display:none;">
-    </label>
-    <button id="font-minus">A−</button>
-    <button id="font-plus">A+</button>
+    <span class="room-badge">🏠 <span id="room-label"></span></span>
     <div class="spacer"></div>
-    <button id="leave-btn">Выйти</button>
+    <button class="icon-btn" id="theme-toggle" title="Тема">🌙</button>
+    <button class="text-btn" id="leave-btn">Выйти</button>
   </header>
 
-  <div class="container">
-    <div id="reader">
-      <div id="book-text">Загрузите файл .txt с текстом книги — он появится у обоих читателей.</div>
-      <div class="nav-row">
-        <button id="prev-btn">← Назад</button>
-        <span id="page-indicator">— / —</span>
-        <button id="next-btn">Вперёд →</button>
-      </div>
-    </div>
-    <div id="chat">
-      <div id="messages"></div>
-      <form id="chat-form">
-        <input id="chat-input" placeholder="Написать сообщение..." autocomplete="off">
-        <button type="submit">➤</button>
-      </form>
+  <div class="stats-row">
+    <div class="stat-card grad"><div class="stat-num" id="stat-total">0</div><div class="stat-label">привычек</div></div>
+    <div class="stat-card grad"><div class="stat-num" id="stat-today">0%</div><div class="stat-label">сегодня</div></div>
+    <div class="stat-card grad"><div class="stat-num" id="stat-best">0</div><div class="stat-label">лучший стрик</div></div>
+    <div class="stat-card grad"><div class="stat-num" id="stat-duo">0</div><div class="stat-label">дуо-дней</div></div>
+  </div>
+
+  <div class="quote-banner">💬 <span id="quote-text"></span></div>
+
+  <div id="add-habit-box">
+    <div class="emoji-quick" id="emoji-quick"></div>
+    <div class="color-quick" id="color-quick"></div>
+    <div class="add-row">
+      <input id="habit-input" placeholder="Новая привычка (например: Зарядка)">
+      <button id="add-habit-btn">Добавить</button>
     </div>
   </div>
+
+  <div id="habits-list"></div>
 </div>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
@@ -258,193 +353,214 @@ const firebaseConfig = {
   appId: "1:112111623912:web:85fc83553bea1a35c2735d",
   measurementId: "G-B1Y6LD8858"
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// ===== Config data =====
+const EMOJIS = ['🔥','📚','💧','🏃','🧘','💤','🥗','✍️','🎯','🎨','💪','🌱','🎧','🧹','☕'];
+const COLORS = ['#7c6cf0','#f065b0','#4fd6c4','#ffc857','#ff8a5b','#5b8cff','#ff5b8f'];
+const QUOTES = [
+  "Маленькие шаги каждый день — большие результаты через месяц.",
+  "Не пропускай два дня подряд — это правило держит любую привычку живой.",
+  "Ты не обязан быть идеальным, только последовательным.",
+  "Лучшее время начать — сегодня. Второе лучшее — завтра.",
+  "Стрик — это не про идеальность, а про возвращение снова и снова.",
+  "Маленькая победа сегодня — топливо для завтрашней.",
+  "Дисциплина — это выбор между тем, что хочешь сейчас, и тем, что хочешь больше всего."
+];
+
 // ===== State =====
-let roomId = null;
-let userName = null;
-let pages = [];
-let currentPage = 0;
-let roomRef = null;
-let unsubRoom = null;
-let unsubChat = null;
-let fontSize = 19;
+let roomId=null, userName=null, roomRef=null;
+let habits=[], members=[];
+let checkinSet=new Set();
+let selectedEmoji='🔥', selectedColor=COLORS[0];
+let shownMilestones=new Set();
+let unsubRoom=null, unsubCheckins=null;
 
 // ===== Elements =====
-const setupScreen = document.getElementById('setup-screen');
-const mainScreen = document.getElementById('main-screen');
-const roomInput = document.getElementById('room-input');
-const nameInput = document.getElementById('name-input');
-const joinBtn = document.getElementById('join-btn');
-const roomLabel = document.getElementById('room-label');
-const bookText = document.getElementById('book-text');
-const pageIndicator = document.getElementById('page-indicator');
-const prevBtn = document.getElementById('prev-btn');
-const nextBtn = document.getElementById('next-btn');
-const fileInput = document.getElementById('file-input');
-const leaveBtn = document.getElementById('leave-btn');
-const fontMinus = document.getElementById('font-minus');
-const fontPlus = document.getElementById('font-plus');
-const messagesEl = document.getElementById('messages');
-const chatForm = document.getElementById('chat-form');
-const chatInput = document.getElementById('chat-input');
+const setupScreen=document.getElementById('setup-screen');
+const mainScreen=document.getElementById('main-screen');
+const roomInput=document.getElementById('room-input');
+const nameInput=document.getElementById('name-input');
+const joinBtn=document.getElementById('join-btn');
+const roomLabel=document.getElementById('room-label');
+const leaveBtn=document.getElementById('leave-btn');
+const themeToggle=document.getElementById('theme-toggle');
+const habitInput=document.getElementById('habit-input');
+const addHabitBtn=document.getElementById('add-habit-btn');
+const habitsList=document.getElementById('habits-list');
+const emojiQuick=document.getElementById('emoji-quick');
+const colorQuick=document.getElementById('color-quick');
+const quoteText=document.getElementById('quote-text');
+const statTotal=document.getElementById('stat-total');
+const statToday=document.getElementById('stat-today');
+const statBest=document.getElementById('stat-best');
+const statDuo=document.getElementById('stat-duo');
 
-// Restore saved name
-nameInput.value = localStorage.getItem('reader_name') || '';
-roomInput.value = localStorage.getItem('reader_room') || '';
+nameInput.value=localStorage.getItem('habit_name')||'';
+roomInput.value=localStorage.getItem('habit_room')||'';
 
-// ===== Join room =====
+// theme
+if(localStorage.getItem('habit_theme')==='light'){
+  document.body.classList.add('light');
+  themeToggle.textContent='☀️';
+}
+themeToggle.addEventListener('click', ()=>{
+  document.body.classList.toggle('light');
+  const isLight=document.body.classList.contains('light');
+  themeToggle.textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('habit_theme', isLight?'light':'dark');
+});
+
+// quote of the day
+quoteText.textContent = QUOTES[new Date().getDate() % QUOTES.length];
+
+// emoji quick picks
+EMOJIS.forEach(em=>{
+  const b=document.createElement('button');
+  b.textContent=em;
+  if(em===selectedEmoji) b.classList.add('active');
+  b.addEventListener('click', ()=>{
+    selectedEmoji=em;
+    [...emojiQuick.children].forEach(c=>c.classList.remove('active'));
+    b.classList.add('active');
+  });
+  emojiQuick.appendChild(b);
+});
+COLORS.forEach(c=>{
+  const d=document.createElement('div');
+  d.className='color-dot'+(c===selectedColor?' active':'');
+  d.style.background=c;
+  d.addEventListener('click', ()=>{
+    selectedColor=c;
+    [...colorQuick.children].forEach(x=>x.classList.remove('active'));
+    d.classList.add('active');
+  });
+  colorQuick.appendChild(d);
+});
+
 joinBtn.addEventListener('click', joinRoom);
-roomInput.addEventListener('keydown', e => { if(e.key==='Enter') joinRoom(); });
-nameInput.addEventListener('keydown', e => { if(e.key==='Enter') joinRoom(); });
+roomInput.addEventListener('keydown', e=>{ if(e.key==='Enter') joinRoom(); });
+nameInput.addEventListener('keydown', e=>{ if(e.key==='Enter') joinRoom(); });
+
+function slug(name){
+  return name.toLowerCase().trim().replace(/[^a-zа-я0-9]+/gi,'_');
+}
+function avatarColor(name){
+  let hash=0;
+  for(let i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return COLORS[Math.abs(hash)%COLORS.length];
+}
 
 async function joinRoom(){
-  const rId = roomInput.value.trim();
-  const name = nameInput.value.trim();
-  if(!rId || !name){
-    alert('Пожалуйста, укажите код комнаты и своё имя.');
-    return;
-  }
-  roomId = rId;
-  userName = name;
-  localStorage.setItem('reader_name', name);
-  localStorage.setItem('reader_room', rId);
+  const rId=roomInput.value.trim();
+  const name=nameInput.value.trim();
+  if(!rId || !name){ alert('Укажите код комнаты и своё имя.'); return; }
+  roomId=rId; userName=name;
+  localStorage.setItem('habit_name',name);
+  localStorage.setItem('habit_room',rId);
 
-  roomRef = db.collection('rooms').doc(roomId);
-  const snap = await roomRef.get();
+  roomRef=db.collection('rooms_habits').doc(roomId);
+  const snap=await roomRef.get();
   if(!snap.exists){
-    await roomRef.set({
-      pages: ["Комната создана! Загрузите файл .txt с книгой — текст появится у обоих участников.", ],
-      currentPage: 0,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    await roomRef.set({ habits:[], members:[name], createdAt:firebase.firestore.FieldValue.serverTimestamp() });
+  } else {
+    await roomRef.update({ members: firebase.firestore.FieldValue.arrayUnion(name) });
   }
 
-  roomLabel.textContent = roomId;
-  setupScreen.style.display = 'none';
-  mainScreen.style.display = 'flex';
+  roomLabel.textContent=roomId;
+  setupScreen.style.display='none';
+  mainScreen.style.display='block';
 
   listenToRoom();
-  listenToChat();
+  listenToCheckins();
 }
 
-leaveBtn.addEventListener('click', () => {
+leaveBtn.addEventListener('click', ()=>{
   if(unsubRoom) unsubRoom();
-  if(unsubChat) unsubChat();
-  mainScreen.style.display = 'none';
-  setupScreen.style.display = 'flex';
+  if(unsubCheckins) unsubCheckins();
+  mainScreen.style.display='none';
+  setupScreen.style.display='flex';
 });
 
-// ===== Sync book & page =====
 function listenToRoom(){
-  unsubRoom = roomRef.onSnapshot(doc => {
-    const data = doc.data();
+  unsubRoom = roomRef.onSnapshot(doc=>{
+    const data=doc.data();
     if(!data) return;
-    pages = data.pages || [];
-    currentPage = data.currentPage || 0;
-    renderPage();
+    habits=data.habits||[];
+    members=data.members||[userName];
+    render();
   });
 }
-
-function renderPage(){
-  if(pages.length === 0){
-    bookText.textContent = 'Пока нет текста. Загрузите файл .txt.';
-    pageIndicator.textContent = '— / —';
-    return;
-  }
-  if(currentPage < 0) currentPage = 0;
-  if(currentPage > pages.length-1) currentPage = pages.length-1;
-  bookText.textContent = pages[currentPage];
-  pageIndicator.textContent = (currentPage+1) + ' / ' + pages.length;
-  prevBtn.disabled = currentPage === 0;
-  nextBtn.disabled = currentPage === pages.length-1;
-}
-
-prevBtn.addEventListener('click', () => changePage(-1));
-nextBtn.addEventListener('click', () => changePage(1));
-
-async function changePage(delta){
-  const newPage = currentPage + delta;
-  if(newPage < 0 || newPage > pages.length-1) return;
-  await roomRef.update({ currentPage: newPage });
-}
-
-document.addEventListener('keydown', (e) => {
-  if(mainScreen.style.display !== 'flex') return;
-  if(document.activeElement === chatInput) return;
-  if(e.key === 'ArrowRight') changePage(1);
-  if(e.key === 'ArrowLeft') changePage(-1);
-});
-
-// ===== Font size =====
-fontPlus.addEventListener('click', () => { fontSize = Math.min(fontSize+2, 34); bookText.style.fontSize = fontSize+'px'; });
-fontMinus.addEventListener('click', () => { fontSize = Math.max(fontSize-2, 12); bookText.style.fontSize = fontSize+'px'; });
-
-// ===== Upload .txt file and split into pages =====
-fileInput.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = async (ev) => {
-    const text = ev.target.result;
-    const newPages = splitIntoPages(text, 1600);
-    await roomRef.update({ pages: newPages, currentPage: 0 });
-  };
-  reader.readAsText(file, 'UTF-8');
-});
-
-function splitIntoPages(text, chunkSize){
-  const paragraphs = text.split(/\n+/);
-  const result = [];
-  let current = '';
-  for(const p of paragraphs){
-    if((current + '\n\n' + p).length > chunkSize && current.length > 0){
-      result.push(current.trim());
-      current = p;
-    } else {
-      current = current ? current + '\n\n' + p : p;
-    }
-  }
-  if(current.trim()) result.push(current.trim());
-  return result.length ? result : ['(Пустой файл)'];
-}
-
-// ===== Chat =====
-function listenToChat(){
-  unsubChat = roomRef.collection('messages')
-    .orderBy('createdAt', 'asc')
-    .limitToLast(100)
-    .onSnapshot(snap => {
-      messagesEl.innerHTML = '';
-      snap.forEach(doc => {
-        const m = doc.data();
-        const div = document.createElement('div');
-        div.className = 'msg' + (m.name === userName ? ' me' : '');
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'name';
-        nameSpan.textContent = m.name;
-        const textNode = document.createTextNode(m.text);
-        div.appendChild(nameSpan);
-        div.appendChild(textNode);
-        messagesEl.appendChild(div);
-      });
-      messagesEl.scrollTop = messagesEl.scrollHeight;
+function listenToCheckins(){
+  unsubCheckins = roomRef.collection('checkins').onSnapshot(snap=>{
+    checkinSet=new Set();
+    snap.forEach(doc=>{
+      const d=doc.data();
+      checkinSet.add(d.habitId+'|'+d.date+'|'+d.name);
     });
+    render();
+  });
 }
 
-chatForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const text = chatInput.value.trim();
-  if(!text) return;
-  chatInput.value = '';
-  await roomRef.collection('messages').add({
-    name: userName,
-    text: text,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  });
-});
-</script>
-</body>
-</html>
+// ===== Add / delete habit =====
+addHabitBtn.addEventListener('click', addHabit);
+habitInput.addEventListener('keydown', e=>{ if(e.key==='Enter') addHabit(); });
+
+async function addHabit(){
+  const name=habitInput.value.trim();
+  if(!name) return;
+  const habit={ id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), name, emoji:selectedEmoji, color:selectedColor };
+  await roomRef.update({ habits: firebase.firestore.FieldValue.arrayUnion(habit) });
+  habitInput.value='';
+}
+async function deleteHabit(habit){
+  if(!confirm('Удалить привычку "'+habit.name+'"?')) return;
+  await roomRef.update({ habits: firebase.firestore.FieldValue.arrayRemove(habit) });
+}
+
+// ===== Dates =====
+function dateStr(d){
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+function last7Dates(){
+  const arr=[];
+  for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); arr.push(d); }
+  return arr;
+}
+function calcStreak(habitId, name){
+  let streak=0; let d=new Date();
+  if(!checkinSet.has(habitId+'|'+dateStr(d)+'|'+name)) d.setDate(d.getDate()-1);
+  while(checkinSet.has(habitId+'|'+dateStr(d)+'|'+name)){ streak++; d.setDate(d.getDate()-1); }
+  return streak;
+}
+function calcDuoStreak(habitId){
+  if(members.length<2) return 0;
+  let streak=0; let d=new Date();
+  const today=dateStr(new Date());
+  const allTodayDone = members.every(m=>checkinSet.has(habitId+'|'+today+'|'+m));
+  if(!allTodayDone) d.setDate(d.getDate()-1);
+  while(members.every(m=>checkinSet.has(habitId+'|'+dateStr(d)+'|'+m))){ streak++; d.setDate(d.getDate()-1); }
+  return streak;
+}
+
+// ===== Toggle checkin =====
+async function toggleToday(habitId, name, dotEl){
+  if(name!==userName) return;
+  const today=dateStr(new Date());
+  const key=habitId+'|'+today+'|'+name;
+  const docId=habitId+'_'+today+'_'+slug(name);
+  const ref=roomRef.collection('checkins').doc(docId);
+  const wasEmpty = !checkinSet.has(key);
+  if(!wasEmpty){
+    await ref.delete();
+  } else {
+    await ref.set({ habitId, date:today, name, createdAt:firebase.firestore.FieldValue.serverTimestamp() });
+    dotEl.classList.add('pop');
+    const newStreak = calcStreak(habitId, name) + 1; // approx after toggle
+    checkMilestone(habitId, name, newStreak);
+  }
+}
+
+function checkMilestone(habitId,
