@@ -456,24 +456,44 @@ async function joinRoom(){
   const rId=roomInput.value.trim();
   const name=nameInput.value.trim();
   if(!rId || !name){ alert('Укажите код комнаты и своё имя.'); return; }
-  roomId=rId; userName=name;
-  localStorage.setItem('habit_name',name);
-  localStorage.setItem('habit_room',rId);
 
-  roomRef=db.collection('rooms_habits').doc(roomId);
-  const snap=await roomRef.get();
-  if(!snap.exists){
-    await roomRef.set({ habits:[], members:[name], createdAt:firebase.firestore.FieldValue.serverTimestamp() });
-  } else {
-    await roomRef.update({ members: firebase.firestore.FieldValue.arrayUnion(name) });
+  joinBtn.disabled = true;
+  joinBtn.textContent = 'Подключение...';
+
+  try{
+    roomId=rId; userName=name;
+    localStorage.setItem('habit_name',name);
+    localStorage.setItem('habit_room',rId);
+
+    roomRef=db.collection('rooms_habits').doc(roomId);
+    const snap=await roomRef.get();
+    if(!snap.exists){
+      await roomRef.set({ habits:[], members:[name], createdAt:firebase.firestore.FieldValue.serverTimestamp() });
+    } else {
+      await roomRef.update({ members: firebase.firestore.FieldValue.arrayUnion(name) });
+    }
+
+    roomLabel.textContent=roomId;
+    setupScreen.style.display='none';
+    mainScreen.style.display='block';
+
+    listenToRoom();
+    listenToCheckins();
+  } catch(err){
+    console.error('Ошибка входа в комнату:', err);
+    alert(
+      'Не удалось подключиться к базе данных.\n\n' +
+      'Код ошибки: ' + (err.code || err.message || err) + '\n\n' +
+      'Частые причины:\n' +
+      '1) В Firebase не создана Firestore Database (Build → Firestore Database → Create database)\n' +
+      '2) Правила Firestore не разрешают доступ (Rules должны быть allow read, write: if true;)\n' +
+      '3) Блокировщик рекламы блокирует запросы к firestore.googleapis.com — попробуйте отключить его для этого сайта\n' +
+      '4) Файл открыт напрямую (file://) вместо загрузки через GitHub Pages/сервер'
+    );
+  } finally {
+    joinBtn.disabled = false;
+    joinBtn.textContent = 'Войти в комнату →';
   }
-
-  roomLabel.textContent=roomId;
-  setupScreen.style.display='none';
-  mainScreen.style.display='block';
-
-  listenToRoom();
-  listenToCheckins();
 }
 
 leaveBtn.addEventListener('click', ()=>{
@@ -540,27 +560,4 @@ function calcDuoStreak(habitId){
   let streak=0; let d=new Date();
   const today=dateStr(new Date());
   const allTodayDone = members.every(m=>checkinSet.has(habitId+'|'+today+'|'+m));
-  if(!allTodayDone) d.setDate(d.getDate()-1);
-  while(members.every(m=>checkinSet.has(habitId+'|'+dateStr(d)+'|'+m))){ streak++; d.setDate(d.getDate()-1); }
-  return streak;
-}
-
-// ===== Toggle checkin =====
-async function toggleToday(habitId, name, dotEl){
-  if(name!==userName) return;
-  const today=dateStr(new Date());
-  const key=habitId+'|'+today+'|'+name;
-  const docId=habitId+'_'+today+'_'+slug(name);
-  const ref=roomRef.collection('checkins').doc(docId);
-  const wasEmpty = !checkinSet.has(key);
-  if(!wasEmpty){
-    await ref.delete();
-  } else {
-    await ref.set({ habitId, date:today, name, createdAt:firebase.firestore.FieldValue.serverTimestamp() });
-    dotEl.classList.add('pop');
-    const newStreak = calcStreak(habitId, name) + 1; // approx after toggle
-    checkMilestone(habitId, name, newStreak);
-  }
-}
-
-function checkMilestone(habitId,
+  if(!allToda
