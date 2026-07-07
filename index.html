@@ -1,563 +1,579 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Привычки вдвоём 🔥</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LIFE RPG — Протокол</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg1:#0f0c29;
-    --bg2:#302b63;
-    --bg3:#24243e;
-    --panel:rgba(255,255,255,0.06);
-    --panel-solid:#181433;
-    --border:rgba(255,255,255,0.09);
-    --text:#f2f1fb;
-    --muted:#9d9bc2;
-    --accent:#7c6cf0;
-    --accent2:#f065b0;
-    --accent3:#4fd6c4;
-    --done:#3ddc97;
-    --gold:#ffc857;
-    --radius:20px;
+  :root {
+    --bg: #101216;
+    --bg-grid: #15181d;
+    --panel: #1a1d22;
+    --panel-2: #21252b;
+    --line: #2b3038;
+    --text: #e9e7e1;
+    --muted: #888d96;
+    --amber: #ffb300;
+    --danger: #ff6b6b;
+    --good: #7ed957;
   }
-  body.light{
-    --bg1:#eef1fb;
-    --bg2:#e4e9fb;
-    --bg3:#f6f4ff;
-    --panel:rgba(255,255,255,0.75);
-    --panel-solid:#ffffff;
-    --border:rgba(30,25,60,0.08);
-    --text:#1c1a33;
-    --muted:#6c6a8c;
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
   }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    min-height:100vh;
-    font-family:'Inter',sans-serif;
-    color:var(--text);
-    background: radial-gradient(circle at 15% 20%, var(--bg2) 0%, transparent 45%),
-                radial-gradient(circle at 85% 15%, var(--accent2) 0%, transparent 35%),
-                radial-gradient(circle at 50% 90%, var(--accent3) 0%, transparent 40%),
-                var(--bg1);
-    background-attachment:fixed;
-    transition:background .3s, color .3s;
+  body {
+    background-image:
+      linear-gradient(var(--bg-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+    background-size: 34px 34px;
   }
-  h1,h2,.font-display{font-family:'Poppins',sans-serif;}
+  .mono { font-family: 'IBM Plex Mono', monospace; }
 
-  /* ---------- SETUP SCREEN ---------- */
-  #setup-screen{
-    min-height:100vh;
-    display:flex;align-items:center;justify-content:center;flex-direction:column;
-    gap:18px;padding:20px;text-align:center;
+  /* ---------- PASSWORD GATE ---------- */
+  #gate {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
   }
-  .logo-badge{
-    font-size:46px;
-    filter:drop-shadow(0 0 20px rgba(124,108,240,.6));
+  .gate-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 36px 32px;
+    width: 90%; max-width: 340px;
+    text-align: center;
   }
-  #setup-screen h1{margin:4px 0;font-size:30px;font-weight:800;
-    background:linear-gradient(90deg,var(--accent),var(--accent2));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
+  .gate-card .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
   }
-  #setup-screen p{color:var(--muted);margin:0 0 6px 0;max-width:380px;font-size:14.5px;}
-  .setup-box{
-    background:var(--panel);
-    backdrop-filter:blur(18px);
-    border:1px solid var(--border);
-    padding:30px;
-    border-radius:24px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.35);
-    display:flex;flex-direction:column;gap:12px;
-    width:100%;max-width:360px;
+  .gate-card h1 {
+    font-size: 20px;
+    margin: 0 0 22px;
+    font-weight: 600;
   }
-  input, button{font-family:inherit;font-size:15px;}
-  .setup-box input{
-    padding:13px 14px;
-    border:1px solid var(--border);
-    border-radius:14px;
-    outline:none;
-    background:rgba(255,255,255,0.04);
-    color:var(--text);
+  .gate-card input {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    text-align: center;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
   }
-  body.light .setup-box input{background:#f5f4ff;}
-  .setup-box input::placeholder{color:var(--muted);}
-  .setup-box input:focus{border-color:var(--accent);}
-  .btn-primary{
-    padding:13px;border:none;border-radius:14px;cursor:pointer;font-weight:700;
-    color:#fff;
-    background:linear-gradient(90deg,var(--accent),var(--accent2));
-    box-shadow:0 8px 24px rgba(124,108,240,0.4);
-    transition:transform .15s;
+  .gate-card input:focus { outline: none; border-color: var(--amber); }
+  .gate-card button {
+    width: 100%;
+    background: var(--amber);
+    border: none;
+    color: #1a1300;
+    font-weight: 700;
+    border-radius: 6px;
+    padding: 12px 14px;
+    cursor: pointer;
+    font-size: 14px;
   }
-  .btn-primary:hover{transform:translateY(-2px);}
-  .btn-primary:active{transform:translateY(0);}
-  .setup-box small{color:var(--muted);}
-
-  /* ---------- MAIN ---------- */
-  #main-screen{display:none;max-width:760px;margin:0 auto;padding:18px 16px 60px;position:relative;}
-
-  header{
-    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-    padding:14px 18px;
-    background:var(--panel);
-    backdrop-filter:blur(18px);
-    border:1px solid var(--border);
-    border-radius:18px;
-    margin-bottom:18px;
+  .gate-card button:hover { filter: brightness(1.08); }
+  .gate-error {
+    color: var(--danger);
+    font-size: 12px;
+    margin-top: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 16px;
   }
-  .room-badge{
-    background:rgba(124,108,240,0.18);
-    color:var(--accent);
-    padding:7px 12px;border-radius:10px;font-size:13px;font-weight:600;
-  }
-  header .spacer{flex:1;}
-  .icon-btn{
-    width:38px;height:38px;
-    display:flex;align-items:center;justify-content:center;
-    border:1px solid var(--border);
-    background:rgba(255,255,255,0.05);
-    border-radius:12px;cursor:pointer;font-size:16px;color:var(--text);
-  }
-  .icon-btn:hover{background:rgba(255,255,255,0.12);}
-  .text-btn{
-    padding:9px 14px;border:1px solid var(--border);
-    background:rgba(255,255,255,0.05);border-radius:12px;cursor:pointer;
-    font-size:13.5px;color:var(--text);font-weight:600;
-  }
-  .text-btn:hover{background:rgba(255,255,255,0.12);}
-
-  /* ---------- STATS DASHBOARD ---------- */
-  .stats-row{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:10px;
-    margin-bottom:18px;
-  }
-  .stat-card{
-    background:var(--panel);
-    backdrop-filter:blur(18px);
-    border:1px solid var(--border);
-    border-radius:16px;
-    padding:14px 10px;
-    text-align:center;
-  }
-  .stat-num{font-size:22px;font-weight:800;font-family:'Poppins',sans-serif;}
-  .stat-label{font-size:10.5px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
-  .stat-card.grad .stat-num{
-    background:linear-gradient(90deg,var(--accent),var(--accent2));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
+  .shake { animation: shake 0.35s; }
+  @keyframes shake {
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
   }
 
-  /* ---------- QUOTE ---------- */
-  .quote-banner{
-    background:linear-gradient(120deg,rgba(124,108,240,0.18),rgba(240,101,176,0.14));
-    border:1px solid var(--border);
-    border-radius:16px;
-    padding:12px 16px;
-    margin-bottom:18px;
-    font-size:13.5px;
-    color:var(--text);
-    display:flex;gap:10px;align-items:center;
+  /* ---------- APP ---------- */
+  #app {
+    display: none;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 18px;
+    margin-bottom: 24px;
+  }
+  .header .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .header h1 { font-size: 22px; margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+  .overall { text-align: right; }
+  .overall .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 44px; font-weight: 700; color: var(--amber); line-height: 1;
+  }
+  .overall .lbl {
+    font-size: 11px; color: var(--muted);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px;
   }
 
-  /* ---------- ADD HABIT ---------- */
-  #add-habit-box{
-    background:var(--panel);
-    backdrop-filter:blur(18px);
-    border:1px solid var(--border);
-    border-radius:18px;
-    padding:14px;
-    margin-bottom:20px;
+  .streak-bar {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; color: var(--muted); margin-bottom: 22px;
   }
-  .emoji-quick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
-  .emoji-quick button{
-    width:36px;height:36px;border-radius:10px;border:1px solid var(--border);
-    background:rgba(255,255,255,0.04);cursor:pointer;font-size:17px;
+  .streak-bar .dot { color: var(--amber); }
+
+  .gauges {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px; margin-bottom: 30px;
   }
-  .emoji-quick button.active{background:rgba(124,108,240,0.35);border-color:var(--accent);}
-  .color-quick{display:flex;gap:6px;margin-bottom:10px;}
-  .color-dot{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
-  .color-dot.active{border-color:#fff;}
-  .add-row{display:flex;gap:8px;}
-  .add-row input{
-    flex:1;padding:11px 13px;border:1px solid var(--border);border-radius:12px;outline:none;
-    background:rgba(255,255,255,0.04);color:var(--text);
+  .gauge {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 12px 12px 14px;
+    transition: box-shadow 0.3s;
   }
-  body.light .add-row input{background:#f5f4ff;}
-  .add-row button{
-    padding:11px 18px;border:none;border-radius:12px;cursor:pointer;font-weight:700;color:#fff;
-    background:linear-gradient(90deg,var(--accent),var(--accent2));
+  .gauge.leveled { box-shadow: 0 0 0 1px var(--amber), 0 0 18px rgba(255,179,0,0.35); }
+  .gauge .top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .gauge .cat-name { font-size: 12px; color: var(--text); font-weight: 600; }
+  .gauge .lvl { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 700; }
+  .gauge .track { height: 6px; background: var(--panel-2); border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+  .gauge .fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+  .gauge .meta { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); display: flex; justify-content: space-between; }
+
+  .section-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 12px; padding-top: 6px;
   }
 
-  /* ---------- HABIT CARD ---------- */
-  .habit-card{
-    background:var(--panel);
-    backdrop-filter:blur(18px);
-    border:1px solid var(--border);
-    border-radius:20px;
-    padding:18px;
-    margin-bottom:16px;
-    position:relative;
-    overflow:hidden;
+  .task-list { margin-bottom: 26px; }
+  .task-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 6px; margin-bottom: 6px;
   }
-  .habit-card::before{
-    content:'';
-    position:absolute;left:0;top:0;bottom:0;width:5px;
-    background:var(--habit-color, var(--accent));
+  .task-row.done { opacity: 0.55; }
+  .task-row .chk {
+    width: 20px; height: 20px; border-radius: 4px;
+    border: 1.5px solid var(--muted); background: transparent; cursor: pointer;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    color: var(--bg); font-size: 13px;
   }
-  .habit-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
-  .habit-emoji{
-    font-size:24px;width:42px;height:42px;border-radius:12px;
-    display:flex;align-items:center;justify-content:center;
-    background:rgba(255,255,255,0.06);
-    flex-shrink:0;
+  .task-row.done .chk { background: var(--good); border-color: var(--good); }
+  .task-row .name { flex: 1; font-size: 13.5px; }
+  .task-row .tag {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted);
+    border: 1px solid var(--line); border-radius: 3px; padding: 2px 6px;
   }
-  .habit-name{font-weight:700;font-size:16px;flex:1;font-family:'Poppins',sans-serif;}
-  .celebrate{
-    font-size:12px;font-weight:700;color:var(--gold);
-    background:rgba(255,200,87,0.15);padding:4px 9px;border-radius:20px;
-    animation:pulseGlow 1.4s infinite;
-  }
-  @keyframes pulseGlow{0%,100%{opacity:1;}50%{opacity:.55;}}
-  .del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 6px;}
-  .del-btn:hover{color:#e05a5a;}
+  .task-row .xp { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; min-width: 46px; text-align: right; }
+  .task-row .mand { color: var(--danger); font-size: 10px; }
+  .task-row .del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px; padding: 2px 4px; }
+  .task-row .del:hover { color: var(--danger); }
 
-  .progress-track{
-    height:6px;border-radius:6px;background:rgba(255,255,255,0.08);
-    margin:8px 0 14px 0;overflow:hidden;
+  .add-form {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 14px; display: grid;
+    grid-template-columns: 2fr 1fr 0.8fr auto auto; gap: 8px; align-items: center; margin-bottom: 30px;
   }
-  .progress-fill{
-    height:100%;border-radius:6px;
-    background:linear-gradient(90deg,var(--accent),var(--accent2));
-    transition:width .4s ease;
+  .add-form input[type=text], .add-form select, .add-form input[type=number] {
+    background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
+    border-radius: 4px; padding: 8px 9px; font-size: 13px; font-family: 'Inter', sans-serif; width: 100%;
   }
+  .add-form label.mand-check { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .add-form button {
+    background: var(--amber); border: none; color: #1a1300; font-weight: 700;
+    border-radius: 4px; padding: 9px 14px; cursor: pointer; font-size: 13px;
+  }
+  .add-form button:hover { filter: brightness(1.08); }
 
-  .member-row{display:flex;align-items:center;gap:10px;padding:7px 0;}
-  .avatar{
-    width:26px;height:26px;border-radius:50%;flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;
-    font-size:11px;font-weight:700;color:#fff;
+  .history { margin-bottom: 20px; }
+  .hist-row {
+    display: flex; justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--muted);
+    padding: 6px 0; border-bottom: 1px solid var(--line);
   }
-  .member-name{
-    width:76px;font-size:12.5px;color:var(--muted);flex-shrink:0;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  }
-  .days{display:flex;gap:6px;flex:1;}
-  .day-dot{
-    width:28px;height:28px;border-radius:9px;
-    background:rgba(255,255,255,0.05);
-    border:1px solid var(--border);
-    display:flex;align-items:center;justify-content:center;
-    font-size:11px;color:var(--muted);flex-shrink:0;
-    transition:transform .15s;
-  }
-  .day-dot.done{
-    background:var(--habit-color, var(--done));
-    border-color:transparent;
-    color:#fff;font-weight:800;
-  }
-  .day-dot.today{cursor:pointer;box-shadow:0 0 0 2px rgba(255,255,255,0.3) inset;}
-  .day-dot.today:hover{transform:scale(1.12);}
-  .day-dot.pop{animation:pop .35s ease;}
-  @keyframes pop{0%{transform:scale(1);}45%{transform:scale(1.35);}100%{transform:scale(1);}}
+  .hist-row .miss { color: var(--danger); }
+  .hist-row .clean { color: var(--good); }
 
-  .streak{font-size:12px;color:var(--muted);width:56px;text-align:right;flex-shrink:0;}
-  .streak b{color:var(--gold);font-weight:800;}
-  .streak-fire{margin-right:2px;}
+  .footer-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--line);
+  }
+  .reset-btn {
+    background: none; border: 1px solid var(--line); color: var(--muted);
+    font-size: 11px; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-family: 'IBM Plex Mono', monospace;
+  }
+  .reset-btn:hover { color: var(--danger); border-color: var(--danger); }
+  .empty-note { color: var(--muted); font-size: 12px; font-style: italic; margin-bottom: 16px; }
 
-  .duo-streak{
-    margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);
-    font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px;
+  .toast-wrap {
+    position: fixed; top: 18px; right: 18px; z-index: 200;
+    display: flex; flex-direction: column; gap: 8px;
   }
-  .duo-streak b{color:var(--accent3);}
-
-  .empty-state{
-    text-align:center;color:var(--muted);padding:50px 20px;
-    background:var(--panel);border-radius:20px;border:1px solid var(--border);
+  .toast {
+    background: var(--panel); border: 1px solid var(--amber); border-radius: 6px;
+    padding: 10px 14px; font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+    box-shadow: 0 0 20px rgba(255,179,0,0.25);
+    animation: toast-in 0.25s ease;
   }
-
-  /* confetti */
-  .confetti{
-    position:fixed;top:-20px;font-size:20px;pointer-events:none;z-index:999;
-    animation:fall linear forwards;
-  }
-  @keyframes fall{
-    to{ transform:translateY(110vh) rotate(360deg); opacity:0.3; }
-  }
-
-  @media (max-width:480px){
-    .stats-row{grid-template-columns:repeat(2,1fr);}
-    .member-name{width:56px;font-size:11px;}
-    .day-dot{width:24px;height:24px;font-size:10px;}
-    .streak{width:42px;font-size:10.5px;}
-  }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  .sync-note { font-size: 10px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
 </style>
 </head>
 <body>
 
-<div id="setup-screen">
-  <div class="logo-badge">🔥</div>
-  <h1>Привычки вдвоём</h1>
-  <p>Один код комнаты на двоих — общий список привычек, стрики и мотивация в реальном времени.</p>
-  <div class="setup-box">
-    <input id="room-input" placeholder="Код комнаты (например: habits123)" />
-    <input id="name-input" placeholder="Ваше имя" />
-    <button id="join-btn" class="btn-primary">Войти в комнату →</button>
-    <small>Если комнаты ещё нет — она создастся автоматически.</small>
+<div id="gate">
+  <div class="gate-card" id="gate-card">
+    <div class="eyebrow">Ограниченный доступ</div>
+    <h1>LIFE RPG — Протокол</h1>
+    <input type="password" id="pw-input" placeholder="Пароль" autocomplete="off" />
+    <button id="pw-btn">Войти</button>
+    <div class="gate-error" id="pw-error"></div>
   </div>
 </div>
 
-<div id="main-screen">
-  <header>
-    <span class="room-badge">🏠 <span id="room-label"></span></span>
-    <div class="spacer"></div>
-    <button class="icon-btn" id="theme-toggle" title="Тема">🌙</button>
-    <button class="text-btn" id="leave-btn">Выйти</button>
-  </header>
+<div class="toast-wrap" id="toast-wrap"></div>
 
-  <div class="stats-row">
-    <div class="stat-card grad"><div class="stat-num" id="stat-total">0</div><div class="stat-label">привычек</div></div>
-    <div class="stat-card grad"><div class="stat-num" id="stat-today">0%</div><div class="stat-label">сегодня</div></div>
-    <div class="stat-card grad"><div class="stat-num" id="stat-best">0</div><div class="stat-label">лучший стрик</div></div>
-    <div class="stat-card grad"><div class="stat-num" id="stat-duo">0</div><div class="stat-label">дуо-дней</div></div>
-  </div>
+<div id="app"></div>
 
-  <div class="quote-banner">💬 <span id="quote-text"></span></div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+  import {
+    getFirestore, doc, getDoc, setDoc
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+  import {
+    getAuth, signInAnonymously, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
-  <div id="add-habit-box">
-    <div class="emoji-quick" id="emoji-quick"></div>
-    <div class="color-quick" id="color-quick"></div>
-    <div class="add-row">
-      <input id="habit-input" placeholder="Новая привычка (например: Зарядка)">
-      <button id="add-habit-btn">Добавить</button>
-    </div>
-  </div>
+  // ---------- FIREBASE CONFIG ----------
+  const firebaseConfig = {
+    apiKey: "AIzaSyCdz7f48TYJCH-ourCeeMi3C7ZmSEOr9NU",
+    authDomain: "rave-clone-2.firebaseapp.com",
+    projectId: "rave-clone-2",
+    storageBucket: "rave-clone-2.firebasestorage.app",
+    messagingSenderId: "112111623912",
+    appId: "1:112111623912:web:85fc83553bea1a35c2735d"
+  };
+  const fbApp = initializeApp(firebaseConfig);
+  const db = getFirestore(fbApp);
+  const auth = getAuth(fbApp);
 
-  <div id="habits-list"></div>
-</div>
+  const DOC_REF = () => doc(db, "lifeRPG", "state");
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  // ---------- PASSWORD GATE ----------
+  const PASSWORD = "NAZAR2010.GAME";
+  const UNLOCK_KEY = "lrpg_unlocked";
 
-<script>
-// ===== Firebase config =====
-const firebaseConfig = {
-  apiKey: "AIzaSyCdz7f48TYJCH-ourCeeMi3C7ZmSEOr9NU",
-  authDomain: "rave-clone-2.firebaseapp.com",
-  projectId: "rave-clone-2",
-  storageBucket: "rave-clone-2.firebasestorage.app",
-  messagingSenderId: "112111623912",
-  appId: "1:112111623912:web:85fc83553bea1a35c2735d",
-  measurementId: "G-B1Y6LD8858"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// ===== Config data =====
-const EMOJIS = ['🔥','📚','💧','🏃','🧘','💤','🥗','✍️','🎯','🎨','💪','🌱','🎧','🧹','☕'];
-const COLORS = ['#7c6cf0','#f065b0','#4fd6c4','#ffc857','#ff8a5b','#5b8cff','#ff5b8f'];
-const QUOTES = [
-  "Маленькие шаги каждый день — большие результаты через месяц.",
-  "Не пропускай два дня подряд — это правило держит любую привычку живой.",
-  "Ты не обязан быть идеальным, только последовательным.",
-  "Лучшее время начать — сегодня. Второе лучшее — завтра.",
-  "Стрик — это не про идеальность, а про возвращение снова и снова.",
-  "Маленькая победа сегодня — топливо для завтрашней.",
-  "Дисциплина — это выбор между тем, что хочешь сейчас, и тем, что хочешь больше всего."
-];
-
-// ===== State =====
-let roomId=null, userName=null, roomRef=null;
-let habits=[], members=[];
-let checkinSet=new Set();
-let selectedEmoji='🔥', selectedColor=COLORS[0];
-let shownMilestones=new Set();
-let unsubRoom=null, unsubCheckins=null;
-
-// ===== Elements =====
-const setupScreen=document.getElementById('setup-screen');
-const mainScreen=document.getElementById('main-screen');
-const roomInput=document.getElementById('room-input');
-const nameInput=document.getElementById('name-input');
-const joinBtn=document.getElementById('join-btn');
-const roomLabel=document.getElementById('room-label');
-const leaveBtn=document.getElementById('leave-btn');
-const themeToggle=document.getElementById('theme-toggle');
-const habitInput=document.getElementById('habit-input');
-const addHabitBtn=document.getElementById('add-habit-btn');
-const habitsList=document.getElementById('habits-list');
-const emojiQuick=document.getElementById('emoji-quick');
-const colorQuick=document.getElementById('color-quick');
-const quoteText=document.getElementById('quote-text');
-const statTotal=document.getElementById('stat-total');
-const statToday=document.getElementById('stat-today');
-const statBest=document.getElementById('stat-best');
-const statDuo=document.getElementById('stat-duo');
-
-nameInput.value=localStorage.getItem('habit_name')||'';
-roomInput.value=localStorage.getItem('habit_room')||'';
-
-// theme
-if(localStorage.getItem('habit_theme')==='light'){
-  document.body.classList.add('light');
-  themeToggle.textContent='☀️';
-}
-themeToggle.addEventListener('click', ()=>{
-  document.body.classList.toggle('light');
-  const isLight=document.body.classList.contains('light');
-  themeToggle.textContent = isLight ? '☀️' : '🌙';
-  localStorage.setItem('habit_theme', isLight?'light':'dark');
-});
-
-// quote of the day
-quoteText.textContent = QUOTES[new Date().getDate() % QUOTES.length];
-
-// emoji quick picks
-EMOJIS.forEach(em=>{
-  const b=document.createElement('button');
-  b.textContent=em;
-  if(em===selectedEmoji) b.classList.add('active');
-  b.addEventListener('click', ()=>{
-    selectedEmoji=em;
-    [...emojiQuick.children].forEach(c=>c.classList.remove('active'));
-    b.classList.add('active');
-  });
-  emojiQuick.appendChild(b);
-});
-COLORS.forEach(c=>{
-  const d=document.createElement('div');
-  d.className='color-dot'+(c===selectedColor?' active':'');
-  d.style.background=c;
-  d.addEventListener('click', ()=>{
-    selectedColor=c;
-    [...colorQuick.children].forEach(x=>x.classList.remove('active'));
-    d.classList.add('active');
-  });
-  colorQuick.appendChild(d);
-});
-
-joinBtn.addEventListener('click', joinRoom);
-roomInput.addEventListener('keydown', e=>{ if(e.key==='Enter') joinRoom(); });
-nameInput.addEventListener('keydown', e=>{ if(e.key==='Enter') joinRoom(); });
-
-function slug(name){
-  return name.toLowerCase().trim().replace(/[^a-zа-я0-9]+/gi,'_');
-}
-function avatarColor(name){
-  let hash=0;
-  for(let i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
-  return COLORS[Math.abs(hash)%COLORS.length];
-}
-
-async function joinRoom(){
-  const rId=roomInput.value.trim();
-  const name=nameInput.value.trim();
-  if(!rId || !name){ alert('Укажите код комнаты и своё имя.'); return; }
-
-  joinBtn.disabled = true;
-  joinBtn.textContent = 'Подключение...';
-
-  try{
-    roomId=rId; userName=name;
-    localStorage.setItem('habit_name',name);
-    localStorage.setItem('habit_room',rId);
-
-    roomRef=db.collection('rooms_habits').doc(roomId);
-    const snap=await roomRef.get();
-    if(!snap.exists){
-      await roomRef.set({ habits:[], members:[name], createdAt:firebase.firestore.FieldValue.serverTimestamp() });
-    } else {
-      await roomRef.update({ members: firebase.firestore.FieldValue.arrayUnion(name) });
-    }
-
-    roomLabel.textContent=roomId;
-    setupScreen.style.display='none';
-    mainScreen.style.display='block';
-
-    listenToRoom();
-    listenToCheckins();
-  } catch(err){
-    console.error('Ошибка входа в комнату:', err);
-    alert(
-      'Не удалось подключиться к базе данных.\n\n' +
-      'Код ошибки: ' + (err.code || err.message || err) + '\n\n' +
-      'Частые причины:\n' +
-      '1) В Firebase не создана Firestore Database (Build → Firestore Database → Create database)\n' +
-      '2) Правила Firestore не разрешают доступ (Rules должны быть allow read, write: if true;)\n' +
-      '3) Блокировщик рекламы блокирует запросы к firestore.googleapis.com — попробуйте отключить его для этого сайта\n' +
-      '4) Файл открыт напрямую (file://) вместо загрузки через GitHub Pages/сервер'
-    );
-  } finally {
-    joinBtn.disabled = false;
-    joinBtn.textContent = 'Войти в комнату →';
+  function showApp() {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    boot();
   }
-}
 
-leaveBtn.addEventListener('click', ()=>{
-  if(unsubRoom) unsubRoom();
-  if(unsubCheckins) unsubCheckins();
-  mainScreen.style.display='none';
-  setupScreen.style.display='flex';
-});
+  if (localStorage.getItem(UNLOCK_KEY) === '1') {
+    showApp();
+  }
 
-function listenToRoom(){
-  unsubRoom = roomRef.onSnapshot(doc=>{
-    const data=doc.data();
-    if(!data) return;
-    habits=data.habits||[];
-    members=data.members||[userName];
-    render();
+  document.getElementById('pw-btn').addEventListener('click', tryUnlock);
+  document.getElementById('pw-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') tryUnlock();
   });
-}
-function listenToCheckins(){
-  unsubCheckins = roomRef.collection('checkins').onSnapshot(snap=>{
-    checkinSet=new Set();
-    snap.forEach(doc=>{
-      const d=doc.data();
-      checkinSet.add(d.habitId+'|'+d.date+'|'+d.name);
-    });
+
+  function tryUnlock() {
+    const val = document.getElementById('pw-input').value;
+    if (val === PASSWORD) {
+      localStorage.setItem(UNLOCK_KEY, '1');
+      showApp();
+    } else {
+      const card = document.getElementById('gate-card');
+      document.getElementById('pw-error').textContent = 'Неверный пароль';
+      card.classList.remove('shake');
+      void card.offsetWidth;
+      card.classList.add('shake');
+    }
+  }
+
+  // ---------- APP LOGIC ----------
+  const CATS = [
+    { key: 'SLEEP', label: 'Сон', color: '#6EA8FE' },
+    { key: 'BODY', label: 'Тело', color: '#FF6B6B' },
+    { key: 'MIND', label: 'Разум', color: '#34D2C0' },
+    { key: 'WORK', label: 'Работа', color: '#FFB300' },
+    { key: 'MONEY', label: 'Финансы', color: '#7ED957' },
+    { key: 'WILL', label: 'Воля', color: '#C792EA' },
+  ];
+  const MILESTONES = [5, 10, 25, 50, 100];
+
+  function threshold(level) { return level * 100; }
+
+  function todayStr(d) {
+    d = d || new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function addDays(dateStr, n) {
+    const d = new Date(dateStr + 'T00:00:00');
+    d.setDate(d.getDate() + n);
+    return todayStr(d);
+  }
+
+  function defaultState() {
+    const categories = {};
+    CATS.forEach(c => categories[c.key] = { level: 1, xp: 0 });
+    return {
+      tasks: [
+        { id: 't1', name: 'Подъём по расписанию', category: 'SLEEP', xp: 15, mandatory: true },
+        { id: 't2', name: 'Отбой по расписанию', category: 'SLEEP', xp: 10, mandatory: true },
+        { id: 't3', name: 'Тренировка 30+ мин', category: 'BODY', xp: 20, mandatory: false },
+        { id: 't4', name: '20 страниц книги', category: 'MIND', xp: 10, mandatory: true },
+        { id: 't5', name: '30 мин фокусной учёбы', category: 'MIND', xp: 20, mandatory: false },
+        { id: 't6', name: 'Закрытая рабочая задача', category: 'WORK', xp: 25, mandatory: false },
+        { id: 't7', name: 'Учёт расходов за день', category: 'MONEY', xp: 5, mandatory: false },
+        { id: 't8', name: 'Сделано то, что откладывал', category: 'WILL', xp: 30, mandatory: false },
+      ],
+      categories,
+      todayDate: todayStr(),
+      todayChecks: {},
+      history: [],
+      streak: 0,
+    };
+  }
+
+  function addCategoryXP(catState, amount) {
+    catState.xp += amount;
+    if (amount > 0) {
+      while (catState.xp >= threshold(catState.level)) {
+        catState.xp -= threshold(catState.level);
+        catState.level += 1;
+      }
+    } else if (amount < 0) {
+      while (catState.xp < 0) {
+        if (catState.level > 1) {
+          catState.level -= 1;
+          catState.xp += threshold(catState.level);
+        } else {
+          catState.xp = 0;
+          break;
+        }
+      }
+    }
+  }
+  function applyPenalty(catState, amount) {
+    catState.xp -= amount;
+    if (catState.xp < 0) catState.xp = 0;
+  }
+
+  let state = null;
+  let saving = false;
+
+  function toast(msg) {
+    const wrap = document.getElementById('toast-wrap');
+    const t = document.createElement('div');
+    t.className = 'toast mono';
+    t.textContent = msg;
+    wrap.appendChild(t);
+    setTimeout(() => t.remove(), 4200);
+  }
+
+  async function loadState() {
+    try {
+      const snap = await getDoc(DOC_REF());
+      if (snap.exists()) return snap.data();
+    } catch (e) {
+      console.error('load failed', e);
+    }
+    return null;
+  }
+
+  async function saveState() {
+    saving = true;
+    try {
+      await setDoc(DOC_REF(), state);
+    } catch (e) {
+      console.error('save failed', e);
+      toast('⚠ Ошибка сохранения — проверь Firestore правила');
+    }
+    saving = false;
+  }
+
+  function rollover() {
+    const now = todayStr();
+    let guard = 0;
+    while (state.todayDate !== now && guard < 120) {
+      guard++;
+      const mandatoryTasks = state.tasks.filter(t => t.mandatory);
+      let allDone = true;
+      mandatoryTasks.forEach(t => {
+        const done = !!state.todayChecks[t.id];
+        if (!done) {
+          allDone = false;
+          applyPenalty(state.categories[t.category], t.xp);
+        }
+      });
+      if (mandatoryTasks.length === 0) allDone = false;
+      state.streak = allDone ? state.streak + 1 : 0;
+      state.history.unshift({
+        date: state.todayDate,
+        missed: mandatoryTasks.filter(t => !state.todayChecks[t.id]).length,
+        totalMandatory: mandatoryTasks.length,
+        streakAfter: state.streak,
+      });
+      state.history = state.history.slice(0, 14);
+      state.todayChecks = {};
+      state.todayDate = addDays(state.todayDate, 1);
+    }
+  }
+
+  function overallLevel() {
+    const levels = CATS.map(c => state.categories[c.key].level);
+    return Math.round(levels.reduce((a, b) => a + b, 0) / levels.length);
+  }
+  function nextMilestone(level) {
+    for (const m of MILESTONES) if (m > level) return m;
+    return null;
+  }
+
+  function toggleTask(id) {
+    const task = state.tasks.find(t => t.id === id);
+    if (!task) return;
+    const cat = state.categories[task.category];
+    const before = cat.level;
+    const isDone = !!state.todayChecks[id];
+    if (isDone) {
+      state.todayChecks[id] = false;
+      addCategoryXP(cat, -task.xp);
+    } else {
+      state.todayChecks[id] = true;
+      addCategoryXP(cat, task.xp);
+    }
+    if (cat.level > before) {
+      const catMeta = CATS.find(c => c.key === task.category);
+      const nm = nextMilestone(before);
+      toast('⚡ LEVEL UP: ' + catMeta.label + ' → ' + cat.level + (nm === cat.level ? ' 🎁 награда!' : ''));
+    }
+    saveState();
     render();
-  });
-}
+  }
 
-// ===== Add / delete habit =====
-addHabitBtn.addEventListener('click', addHabit);
-habitInput.addEventListener('keydown', e=>{ if(e.key==='Enter') addHabit(); });
+  function deleteTask(id) {
+    const task = state.tasks.find(t => t.id === id);
+    if (task && state.todayChecks[id]) {
+      addCategoryXP(state.categories[task.category], -task.xp);
+    }
+    state.tasks = state.tasks.filter(t => t.id !== id);
+    delete state.todayChecks[id];
+    saveState();
+    render();
+  }
 
-async function addHabit(){
-  const name=habitInput.value.trim();
-  if(!name) return;
-  const habit={ id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), name, emoji:selectedEmoji, color:selectedColor };
-  await roomRef.update({ habits: firebase.firestore.FieldValue.arrayUnion(habit) });
-  habitInput.value='';
-}
-async function deleteHabit(habit){
-  if(!confirm('Удалить привычку "'+habit.name+'"?')) return;
-  await roomRef.update({ habits: firebase.firestore.FieldValue.arrayRemove(habit) });
-}
+  function addTask(name, category, xp, mandatory) {
+    const id = 't_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+    state.tasks.push({ id, name, category, xp: Math.max(1, xp | 0), mandatory });
+    saveState();
+    render();
+  }
 
-// ===== Dates =====
-function dateStr(d){
-  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
-  return y+'-'+m+'-'+day;
-}
-function last7Dates(){
-  const arr=[];
-  for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); arr.push(d); }
-  return arr;
-}
-function calcStreak(habitId, name){
-  let streak=0; let d=new Date();
-  if(!checkinSet.has(habitId+'|'+dateStr(d)+'|'+name)) d.setDate(d.getDate()-1);
-  while(checkinSet.has(habitId+'|'+dateStr(d)+'|'+name)){ streak++; d.setDate(d.getDate()-1); }
-  return streak;
-}
-function calcDuoStreak(habitId){
-  if(members.length<2) return 0;
-  let streak=0; let d=new Date();
-  const today=dateStr(new Date());
-  const allTodayDone = members.every(m=>checkinSet.has(habitId+'|'+today+'|'+m));
-  if(!allToda
+  async function resetAll() {
+    if (!confirm('Стереть весь прогресс и задания? Это необратимо.')) return;
+    state = defaultState();
+    await saveState();
+    render();
+  }
+
+  function render() {
+    const app = document.getElementById('app');
+    const lvl = overallLevel();
+
+    const gauges = CATS.map(c => {
+      const cs = state.categories[c.key];
+      const th = threshold(cs.level);
+      const pct = Math.min(100, Math.round((cs.xp / th) * 100));
+      const nm = nextMilestone(cs.level);
+      return `
+        <div class="gauge">
+          <div class="top">
+            <span class="cat-name">${c.label}</span>
+            <span class="lvl" style="color:${c.color}">${cs.level}</span>
+          </div>
+          <div class="track"><div class="fill" style="width:${pct}%;background:${c.color}"></div></div>
+          <div class="meta"><span>${cs.xp}/${th} XP</span><span>${nm ? 'ур.' + nm + ' 🎁' : '—'}</span></div>
+        </div>`;
+    }).join('');
+
+    const tasksByCat = CATS.map(c => {
+      const tasks = state.tasks.filter(t => t.category === c.key);
+      if (!tasks.length) return '';
+      return tasks.map(t => {
+        const done = !!state.todayChecks[t.id];
+        return `
+          <div class="task-row ${done ? 'done' : ''}">
+            <div class="chk" data-toggle="${t.id}">${done ? '✓' : ''}</div>
+            <span class="name">${t.name}</span>
+            ${t.mandatory ? '<span class="mand">ОБЯЗАТ.</span>' : ''}
+            <span class="tag" style="color:${c.color};border-color:${c.color}">${c.label}</span>
+            <span class="xp" style="color:var(--good)">+${t.xp}</span>
+            <button class="del" data-del="${t.id}" title="Удалить задание">✕</button>
+          </div>`;
+      }).join('');
+    }).join('');
+
+    const catOptions = CATS.map(c => `<option value="${c.key}">${c.label}</option>`).join('');
+
+    const historyRows = state.history.map(h => {
+      const clean = h.missed === 0;
+      return `
+        <div class="hist-row">
+          <span>${h.date}</span>
+          <span class="${clean ? 'clean' : 'miss'}">${clean ? 'чисто' : h.missed + '/' + h.totalMandatory + ' пропущено'}</span>
+          <span>streak: ${h.streakAfter}</span>
+        </div>`;
+    }).join('');
+
+    app.innerHTML = `
+      <div class="header">
+        <div>
+          <div class="eyebrow">Life RPG · Протокол</div>
+          <h1>${todayStr() === state.todayDate ? 'Сегодня, ' + state.todayDate : state.todayDate}</h1>
+        </div>
+        <div class="overall">
+          <div class="num mono">${lvl}</div>
+          <div class="lbl">общий уровень</div>
+        </div>
+      </div>
+
+      <div class="streak-bar mono"><span class="dot">●</span> streak: ${state.streak} ${state.streak > 0 ? 'дн.' : ''} &nbsp;·&nbsp; бонус XP: +${Math.min(50, state.streak * 5)}%</div>
+
+      <div class="gauges">${gauges}</div>
+
+      <div class="section-title">Задания на сегодня</div>
+      <div class="task-list">
+        ${tasksByCat || '<div class="empty-note">Заданий нет — добавь первое ниже.</div>'}
+      </div>
+
+      <div class="section-title">Добавить задание</div>
+      <div class="add-form">
+        <input type="text" id="new-name" placeholder="Название задания" />
+        <select id="new-cat">${catOptions}</select>
+        <input type="number" id="new-xp" placeholde
