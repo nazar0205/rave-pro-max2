@@ -35,6 +35,7 @@
   }
   .mono { font-family: 'IBM Plex Mono', monospace; }
 
+  /* ---------- PASSWORD GATE ---------- */
   #gate {
     position: fixed; inset: 0;
     background: var(--bg);
@@ -101,6 +102,7 @@
     75% { transform: translateX(6px); }
   }
 
+  /* ---------- APP ---------- */
   #app {
     display: none;
     max-width: 900px;
@@ -153,6 +155,7 @@
     padding: 12px 12px 14px;
     transition: box-shadow 0.3s;
   }
+  .gauge.leveled { box-shadow: 0 0 0 1px var(--amber), 0 0 18px rgba(255,179,0,0.35); }
   .gauge .top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
   .gauge .cat-name { font-size: 12px; color: var(--text); font-weight: 600; }
   .gauge .lvl { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 700; }
@@ -229,7 +232,6 @@
   .toast-wrap {
     position: fixed; top: 18px; right: 18px; z-index: 200;
     display: flex; flex-direction: column; gap: 8px;
-    max-width: 320px;
   }
   .toast {
     background: var(--panel); border: 1px solid var(--amber); border-radius: 6px;
@@ -239,11 +241,6 @@
   }
   @keyframes toast-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
   .sync-note { font-size: 10px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
-  .fatal {
-    text-align: center; padding-top: 60px; color: var(--danger);
-    font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.6;
-  }
-  .fatal .detail { color: var(--muted); font-size: 11px; }
 </style>
 </head>
 <body>
@@ -262,22 +259,51 @@
 
 <div id="app"></div>
 
-<script>
-(function () {
-  // ============================================================
-  // ЧАСТЬ 1: ПАРОЛЬ — не зависит от Firebase, всегда работает
-  // ============================================================
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+  import {
+    getFirestore, doc, getDoc, setDoc
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+  import {
+    getAuth, signInAnonymously, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+  // ---------- FIREBASE CONFIG ----------
+  const firebaseConfig = {
+    apiKey: "AIzaSyCdz7f48TYJCH-ourCeeMi3C7ZmSEOr9NU",
+    authDomain: "rave-clone-2.firebaseapp.com",
+    projectId: "rave-clone-2",
+    storageBucket: "rave-clone-2.firebasestorage.app",
+    messagingSenderId: "112111623912",
+    appId: "1:112111623912:web:85fc83553bea1a35c2735d"
+  };
+  const fbApp = initializeApp(firebaseConfig);
+  const db = getFirestore(fbApp);
+  const auth = getAuth(fbApp);
+
+  const DOC_REF = () => doc(db, "lifeRPG", "state");
+
+  // ---------- PASSWORD GATE ----------
   const PASSWORD = "NAZAR2010.GAME";
   const UNLOCK_KEY = "lrpg_unlocked";
 
-  const gateBtn = document.getElementById('pw-btn');
-  const gateInput = document.getElementById('pw-input');
+  function showApp() {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    boot();
+  }
 
-  gateBtn.addEventListener('click', tryUnlock);
-  gateInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryUnlock(); });
+  if (localStorage.getItem(UNLOCK_KEY) === '1') {
+    showApp();
+  }
+
+  document.getElementById('pw-btn').addEventListener('click', tryUnlock);
+  document.getElementById('pw-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') tryUnlock();
+  });
 
   function tryUnlock() {
-    const val = gateInput.value;
+    const val = document.getElementById('pw-input').value;
     if (val === PASSWORD) {
       localStorage.setItem(UNLOCK_KEY, '1');
       showApp();
@@ -290,21 +316,7 @@
     }
   }
 
-  function showApp() {
-    document.getElementById('gate').style.display = 'none';
-    const app = document.getElementById('app');
-    app.style.display = 'block';
-    app.innerHTML = '<p class="fatal" style="color:var(--muted)">Загрузка...</p>';
-    boot();
-  }
-
-  if (localStorage.getItem(UNLOCK_KEY) === '1') {
-    showApp();
-  }
-
-  // ============================================================
-  // ЧАСТЬ 2: ЛОГИКА ИГРЫ (не зависит от Firebase)
-  // ============================================================
+  // ---------- APP LOGIC ----------
   const CATS = [
     { key: 'SLEEP', label: 'Сон', color: '#6EA8FE' },
     { key: 'BODY', label: 'Тело', color: '#FF6B6B' },
@@ -316,6 +328,7 @@
   const MILESTONES = [5, 10, 25, 50, 100];
 
   function threshold(level) { return level * 100; }
+
   function todayStr(d) {
     d = d || new Date();
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -373,6 +386,7 @@
   }
 
   let state = null;
+  let saving = false;
 
   function toast(msg) {
     const wrap = document.getElementById('toast-wrap');
@@ -380,7 +394,28 @@
     t.className = 'toast mono';
     t.textContent = msg;
     wrap.appendChild(t);
-    setTimeout(() => t.remove(), 5000);
+    setTimeout(() => t.remove(), 4200);
+  }
+
+  async function loadState() {
+    try {
+      const snap = await getDoc(DOC_REF());
+      if (snap.exists()) return snap.data();
+    } catch (e) {
+      console.error('load failed', e);
+    }
+    return null;
+  }
+
+  async function saveState() {
+    saving = true;
+    try {
+      await setDoc(DOC_REF(), state);
+    } catch (e) {
+      console.error('save failed', e);
+      toast('⚠ Ошибка сохранения — проверь Firestore правила');
+    }
+    saving = false;
   }
 
   function rollover() {
@@ -476,11 +511,15 @@
       const th = threshold(cs.level);
       const pct = Math.min(100, Math.round((cs.xp / th) * 100));
       const nm = nextMilestone(cs.level);
-      return '<div class="gauge">' +
-        '<div class="top"><span class="cat-name">' + c.label + '</span><span class="lvl" style="color:' + c.color + '">' + cs.level + '</span></div>' +
-        '<div class="track"><div class="fill" style="width:' + pct + '%;background:' + c.color + '"></div></div>' +
-        '<div class="meta"><span>' + cs.xp + '/' + th + ' XP</span><span>' + (nm ? 'ур.' + nm + ' 🎁' : '—') + '</span></div>' +
-        '</div>';
+      return `
+        <div class="gauge">
+          <div class="top">
+            <span class="cat-name">${c.label}</span>
+            <span class="lvl" style="color:${c.color}">${cs.level}</span>
+          </div>
+          <div class="track"><div class="fill" style="width:${pct}%;background:${c.color}"></div></div>
+          <div class="meta"><span>${cs.xp}/${th} XP</span><span>${nm ? 'ур.' + nm + ' 🎁' : '—'}</span></div>
+        </div>`;
     }).join('');
 
     const tasksByCat = CATS.map(c => {
@@ -488,52 +527,104 @@
       if (!tasks.length) return '';
       return tasks.map(t => {
         const done = !!state.todayChecks[t.id];
-        return '<div class="task-row ' + (done ? 'done' : '') + '">' +
-          '<div class="chk" data-toggle="' + t.id + '">' + (done ? '✓' : '') + '</div>' +
-          '<span class="name">' + t.name + '</span>' +
-          (t.mandatory ? '<span class="mand">ОБЯЗАТ.</span>' : '') +
-          '<span class="tag" style="color:' + c.color + ';border-color:' + c.color + '">' + c.label + '</span>' +
-          '<span class="xp" style="color:var(--good)">+' + t.xp + '</span>' +
-          '<button class="del" data-del="' + t.id + '" title="Удалить задание">✕</button>' +
-          '</div>';
+        return `
+          <div class="task-row ${done ? 'done' : ''}">
+            <div class="chk" data-toggle="${t.id}">${done ? '✓' : ''}</div>
+            <span class="name">${t.name}</span>
+            ${t.mandatory ? '<span class="mand">ОБЯЗАТ.</span>' : ''}
+            <span class="tag" style="color:${c.color};border-color:${c.color}">${c.label}</span>
+            <span class="xp" style="color:var(--good)">+${t.xp}</span>
+            <button class="del" data-del="${t.id}" title="Удалить задание">✕</button>
+          </div>`;
       }).join('');
     }).join('');
 
-    const catOptions = CATS.map(c => '<option value="' + c.key + '">' + c.label + '</option>').join('');
+    const catOptions = CATS.map(c => `<option value="${c.key}">${c.label}</option>`).join('');
 
     const historyRows = state.history.map(h => {
       const clean = h.missed === 0;
-      return '<div class="hist-row">' +
-        '<span>' + h.date + '</span>' +
-        '<span class="' + (clean ? 'clean' : 'miss') + '">' + (clean ? 'чисто' : h.missed + '/' + h.totalMandatory + ' пропущено') + '</span>' +
-        '<span>streak: ' + h.streakAfter + '</span>' +
-        '</div>';
+      return `
+        <div class="hist-row">
+          <span>${h.date}</span>
+          <span class="${clean ? 'clean' : 'miss'}">${clean ? 'чисто' : h.missed + '/' + h.totalMandatory + ' пропущено'}</span>
+          <span>streak: ${h.streakAfter}</span>
+        </div>`;
     }).join('');
 
-    app.innerHTML =
-      '<div class="header"><div><div class="eyebrow">Life RPG · Протокол</div>' +
-      '<h1>' + (todayStr() === state.todayDate ? 'Сегодня, ' + state.todayDate : state.todayDate) + '</h1></div>' +
-      '<div class="overall"><div class="num mono">' + lvl + '</div><div class="lbl">общий уровень</div></div></div>' +
-      '<div class="streak-bar mono"><span class="dot">●</span> streak: ' + state.streak + ' ' + (state.streak > 0 ? 'дн.' : '') +
-      ' &nbsp;·&nbsp; бонус XP: +' + Math.min(50, state.streak * 5) + '%</div>' +
-      '<div class="gauges">' + gauges + '</div>' +
-      '<div class="section-title">Задания на сегодня</div>' +
-      '<div class="task-list">' + (tasksByCat || '<div class="empty-note">Заданий нет — добавь первое ниже.</div>') + '</div>' +
-      '<div class="section-title">Добавить задание</div>' +
-      '<div class="add-form">' +
-      '<input type="text" id="new-name" placeholder="Название задания" />' +
-      '<select id="new-cat">' + catOptions + '</select>' +
-      '<input type="number" id="new-xp" placeholder="XP" value="10" min="1" />' +
-      '<label class="mand-check"><input type="checkbox" id="new-mand" /> обязательное</label>' +
-      '<button id="add-btn">Добавить</button>' +
-      '</div>' +
-      '<div class="section-title">История</div>' +
-      '<div class="history">' + (historyRows || '<div class="empty-note">Пока нет закрытых дней.</div>') + '</div>' +
-      '<div class="footer-row"><span class="sync-note">синхронизировано с Firestore</span>' +
-      '<button class="reset-btn" id="reset-btn">Сбросить всё</button></div>';
+    app.innerHTML = `
+      <div class="header">
+        <div>
+          <div class="eyebrow">Life RPG · Протокол</div>
+          <h1>${todayStr() === state.todayDate ? 'Сегодня, ' + state.todayDate : state.todayDate}</h1>
+        </div>
+        <div class="overall">
+          <div class="num mono">${lvl}</div>
+          <div class="lbl">общий уровень</div>
+        </div>
+      </div>
+
+      <div class="streak-bar mono"><span class="dot">●</span> streak: ${state.streak} ${state.streak > 0 ? 'дн.' : ''} &nbsp;·&nbsp; бонус XP: +${Math.min(50, state.streak * 5)}%</div>
+
+      <div class="gauges">${gauges}</div>
+
+      <div class="section-title">Задания на сегодня</div>
+      <div class="task-list">
+        ${tasksByCat || '<div class="empty-note">Заданий нет — добавь первое ниже.</div>'}
+      </div>
+
+      <div class="section-title">Добавить задание</div>
+      <div class="add-form">
+        <input type="text" id="new-name" placeholder="Название задания" />
+        <select id="new-cat">${catOptions}</select>
+        <input type="number" id="new-xp" placeholder="XP" value="10" min="1" />
+        <label class="mand-check"><input type="checkbox" id="new-mand" /> обязательное</label>
+        <button id="add-btn">Добавить</button>
+      </div>
+
+      <div class="section-title">История</div>
+      <div class="history">
+        ${historyRows || '<div class="empty-note">Пока нет закрытых дней.</div>'}
+      </div>
+
+      <div class="footer-row">
+        <span class="sync-note">синхронизировано с Firestore</span>
+        <button class="reset-btn" id="reset-btn">Сбросить всё</button>
+      </div>
+    `;
 
     app.querySelectorAll('[data-toggle]').forEach(elx => {
       elx.addEventListener('click', () => toggleTask(elx.getAttribute('data-toggle')));
     });
     app.querySelectorAll('[data-del]').forEach(elx => {
-      elx.addEventListene
+      elx.addEventListener('click', (e) => { e.stopPropagation(); deleteTask(elx.getAttribute('data-del')); });
+    });
+    document.getElementById('add-btn').addEventListener('click', () => {
+      const name = document.getElementById('new-name').value.trim();
+      const category = document.getElementById('new-cat').value;
+      const xp = parseInt(document.getElementById('new-xp').value, 10) || 10;
+      const mandatory = document.getElementById('new-mand').checked;
+      if (!name) return;
+      addTask(name, category, xp, mandatory);
+    });
+    document.getElementById('reset-btn').addEventListener('click', resetAll);
+  }
+
+  async function boot() {
+    document.getElementById('app').innerHTML = '<p class="mono" style="text-align:center;padding-top:60px;color:var(--muted)">Загрузка...</p>';
+    try {
+      await signInAnonymously(auth);
+    } catch (e) {
+      console.error('auth failed', e);
+    }
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return;
+      const loaded = await loadState();
+      state = loaded || defaultState();
+      rollover();
+      await saveState();
+      render();
+    });
+  }
+</script>
+</body>
+</html>
