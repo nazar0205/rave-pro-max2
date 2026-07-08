@@ -8,239 +8,124 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #101216;
-    --bg-grid: #15181d;
-    --panel: #1a1d22;
-    --panel-2: #21252b;
-    --line: #2b3038;
-    --text: #e9e7e1;
-    --muted: #888d96;
-    --amber: #ffb300;
-    --danger: #ff6b6b;
-    --good: #7ed957;
+    --bg: #101216; --bg-grid: #15181d; --panel: #1a1d22; --panel-2: #21252b;
+    --line: #2b3038; --text: #e9e7e1; --muted: #888d96; --amber: #ffb300;
+    --danger: #ff6b6b; --good: #7ed957;
   }
   * { box-sizing: border-box; }
-  html, body {
-    margin: 0; padding: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-  }
-  body {
-    background-image:
-      linear-gradient(var(--bg-grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
-    background-size: 34px 34px;
-  }
-  .mono { font-family: 'IBM Plex Mono', monospace; }
+  html, body { margin:0; padding:0; background: var(--bg); color: var(--text); font-family:'Inter',sans-serif; min-height:100vh; }
+  body { background-image: linear-gradient(var(--bg-grid) 1px, transparent 1px), linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px); background-size: 34px 34px; }
+  .mono { font-family:'IBM Plex Mono', monospace; }
 
-  /* ---------- PASSWORD GATE ---------- */
-  #gate {
-    position: fixed; inset: 0;
-    background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 100;
-  }
-  .gate-card {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 36px 32px;
-    width: 90%; max-width: 340px;
-    text-align: center;
-  }
-  .gate-card .eyebrow {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.16em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-  .gate-card h1 {
-    font-size: 20px;
-    margin: 0 0 22px;
-    font-weight: 600;
-  }
-  .gate-card input {
-    width: 100%;
-    background: var(--panel-2);
-    border: 1px solid var(--line);
-    color: var(--text);
-    border-radius: 6px;
-    padding: 12px 14px;
-    font-size: 14px;
-    font-family: 'IBM Plex Mono', monospace;
-    text-align: center;
-    letter-spacing: 0.05em;
-    margin-bottom: 12px;
-  }
-  .gate-card input:focus { outline: none; border-color: var(--amber); }
-  .gate-card button {
-    width: 100%;
-    background: var(--amber);
-    border: none;
-    color: #1a1300;
-    font-weight: 700;
-    border-radius: 6px;
-    padding: 12px 14px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  .gate-card button:hover { filter: brightness(1.08); }
-  .gate-error {
-    color: var(--danger);
-    font-size: 12px;
-    margin-top: 10px;
-    font-family: 'IBM Plex Mono', monospace;
-    min-height: 16px;
-  }
+  #gate { position: fixed; inset:0; background: var(--bg); display:flex; align-items:center; justify-content:center; z-index:100; }
+  .gate-card { background: var(--panel); border:1px solid var(--line); border-radius:10px; padding:36px 32px; width:90%; max-width:340px; text-align:center; }
+  .gate-card .eyebrow { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.16em; color:var(--muted); text-transform:uppercase; margin-bottom:8px; }
+  .gate-card h1 { font-size:20px; margin:0 0 22px; font-weight:600; }
+  .gate-card input { width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--text); border-radius:6px; padding:12px 14px; font-size:14px; font-family:'IBM Plex Mono',monospace; text-align:center; letter-spacing:0.05em; margin-bottom:12px; }
+  .gate-card input:focus { outline:none; border-color:var(--amber); }
+  .gate-card button { width:100%; background:var(--amber); border:none; color:#1a1300; font-weight:700; border-radius:6px; padding:12px 14px; cursor:pointer; font-size:14px; }
+  .gate-card button:hover { filter:brightness(1.08); }
+  .gate-error { color:var(--danger); font-size:12px; margin-top:10px; font-family:'IBM Plex Mono',monospace; min-height:16px; }
   .shake { animation: shake 0.35s; }
-  @keyframes shake {
-    25% { transform: translateX(-6px); }
-    75% { transform: translateX(6px); }
-  }
+  @keyframes shake { 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
 
-  /* ---------- APP ---------- */
-  #app {
-    display: none;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 28px 20px 60px;
-  }
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 18px;
-    margin-bottom: 24px;
-  }
-  .header .eyebrow {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-  .header h1 { font-size: 22px; margin: 0; font-weight: 600; letter-spacing: -0.01em; }
-  .overall { text-align: right; }
-  .overall .num {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 44px; font-weight: 700; color: var(--amber); line-height: 1;
-  }
-  .overall .lbl {
-    font-size: 11px; color: var(--muted);
-    letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px;
-  }
+  #app { display:none; max-width:960px; margin:0 auto; padding:28px 20px 60px; }
+  .header { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--line); padding-bottom:18px; margin-bottom:18px; }
+  .header .eyebrow { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.14em; color:var(--muted); text-transform:uppercase; margin-bottom:6px; }
+  .header h1 { font-size:22px; margin:0; font-weight:600; letter-spacing:-0.01em; }
+  .overall { text-align:right; }
+  .overall .num { font-family:'IBM Plex Mono',monospace; font-size:44px; font-weight:700; color:var(--amber); line-height:1; }
+  .overall .lbl { font-size:11px; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; margin-top:4px; }
 
-  .streak-bar {
-    display: flex; align-items: center; gap: 10px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px; color: var(--muted); margin-bottom: 22px;
-  }
-  .streak-bar .dot { color: var(--amber); }
+  .xp-block { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-bottom:18px; }
+  .xp-block .row-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); }
+  .xp-block .row-top b { color:var(--amber); font-size:14px; }
+  .xp-track { height:14px; background:var(--panel-2); border-radius:7px; overflow:hidden; }
+  .xp-fill { height:100%; background:linear-gradient(90deg, var(--amber), #ffd166); border-radius:7px; transition: width 0.5s ease; }
 
-  .gauges {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 10px; margin-bottom: 30px;
-  }
-  .gauge {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 12px 12px 14px;
-    transition: box-shadow 0.3s;
-  }
-  .gauge.leveled { box-shadow: 0 0 0 1px var(--amber), 0 0 18px rgba(255,179,0,0.35); }
-  .gauge .top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-  .gauge .cat-name { font-size: 12px; color: var(--text); font-weight: 600; }
-  .gauge .lvl { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 700; }
-  .gauge .track { height: 6px; background: var(--panel-2); border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
-  .gauge .fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
-  .gauge .meta { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); display: flex; justify-content: space-between; }
+  .week-block { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-bottom:22px; }
+  .week-block .wtitle { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+  .week-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap:14px; }
+  .week-stat .v { font-family:'IBM Plex Mono',monospace; font-size:20px; font-weight:700; color:var(--amber); }
+  .week-stat .v.neg { color:var(--danger); }
+  .week-stat .l { font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
 
-  .section-title {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--muted); margin: 0 0 12px; padding-top: 6px;
-  }
+  .top-stats { display:flex; gap:18px; flex-wrap:wrap; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); margin-bottom:24px; align-items:center; }
+  .top-stats .dot { color:var(--amber); }
+  .top-stats .coin { color:var(--amber); font-weight:700; }
 
-  .task-list { margin-bottom: 26px; }
-  .task-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 12px; background: var(--panel);
-    border: 1px solid var(--line); border-radius: 6px; margin-bottom: 6px;
-  }
-  .task-row.done { opacity: 0.55; }
-  .task-row .chk {
-    width: 20px; height: 20px; border-radius: 4px;
-    border: 1.5px solid var(--muted); background: transparent; cursor: pointer;
-    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-    color: var(--bg); font-size: 13px;
-  }
-  .task-row.done .chk { background: var(--good); border-color: var(--good); }
-  .task-row .name { flex: 1; font-size: 13.5px; }
-  .task-row .tag {
-    font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted);
-    border: 1px solid var(--line); border-radius: 3px; padding: 2px 6px;
-  }
-  .task-row .xp { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; min-width: 46px; text-align: right; }
-  .task-row .mand { color: var(--danger); font-size: 10px; }
-  .task-row .del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px; padding: 2px 4px; }
-  .task-row .del:hover { color: var(--danger); }
+  .chart-block { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 18px 8px; margin-bottom:30px; }
+  .chart-block .ctitle { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+  .chart-empty { color:var(--muted); font-size:12px; font-style:italic; padding:20px 0; text-align:center; }
 
-  .add-form {
-    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
-    padding: 14px; display: grid;
-    grid-template-columns: 2fr 1fr 0.8fr auto auto; gap: 8px; align-items: center; margin-bottom: 30px;
-  }
-  .add-form input[type=text], .add-form select, .add-form input[type=number] {
-    background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
-    border-radius: 4px; padding: 8px 9px; font-size: 13px; font-family: 'Inter', sans-serif; width: 100%;
-  }
-  .add-form label.mand-check { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); white-space: nowrap; }
-  .add-form button {
-    background: var(--amber); border: none; color: #1a1300; font-weight: 700;
-    border-radius: 4px; padding: 9px 14px; cursor: pointer; font-size: 13px;
-  }
-  .add-form button:hover { filter: brightness(1.08); }
+  .section-title { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin:0 0 12px; padding-top:6px; }
 
-  .history { margin-bottom: 20px; }
-  .hist-row {
-    display: flex; justify-content: space-between;
-    font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--muted);
-    padding: 6px 0; border-bottom: 1px solid var(--line);
-  }
-  .hist-row .miss { color: var(--danger); }
-  .hist-row .clean { color: var(--good); }
+  .skill-row { display:flex; align-items:center; gap:10px; padding:9px 12px; background:var(--panel); border:1px solid var(--line); border-radius:6px; margin-bottom:6px; }
+  .skill-row .sw { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+  .skill-row input.sk-name { flex:1; background:transparent; border:none; border-bottom:1px dashed transparent; color:var(--text); font-size:13.5px; padding:2px 0; min-width:80px; }
+  .skill-row input.sk-name:hover, .skill-row input.sk-name:focus { border-bottom-color:var(--line); outline:none; }
+  .skill-row .sk-stat { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); white-space:nowrap; }
+  .skill-row .sk-del { background:none; border:none; color:var(--muted); cursor:pointer; font-size:14px; padding:2px 4px; }
+  .skill-row .sk-del:hover { color:var(--danger); }
+  .skill-row.totals { border-color:var(--amber); }
+  .skill-row.totals .sk-stat { color:var(--amber); font-weight:700; }
+  .add-skill-form { background:var(--panel); border:1px dashed var(--line); border-radius:6px; padding:10px 12px; display:flex; gap:8px; margin-bottom:30px; }
+  .add-skill-form input { flex:1; background:var(--panel-2); border:1px solid var(--line); color:var(--text); border-radius:4px; padding:8px 9px; font-size:13px; }
+  .add-skill-form button { background:var(--panel-2); border:1px solid var(--amber); color:var(--amber); border-radius:4px; padding:8px 14px; cursor:pointer; font-size:12px; font-weight:600; }
+  .add-skill-form button:hover { background:var(--amber); color:#1a1300; }
 
-  .footer-row {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--line);
-  }
-  .reset-btn {
-    background: none; border: 1px solid var(--line); color: var(--muted);
-    font-size: 11px; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-family: 'IBM Plex Mono', monospace;
-  }
-  .reset-btn:hover { color: var(--danger); border-color: var(--danger); }
-  .empty-note { color: var(--muted); font-size: 12px; font-style: italic; margin-bottom: 16px; }
+  .task-list { margin-bottom:26px; }
+  .task-row { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--panel); border:1px solid var(--line); border-radius:6px; margin-bottom:6px; flex-wrap:wrap; }
+  .task-row.done { opacity:0.55; }
+  .task-row .chk { width:20px; height:20px; border-radius:4px; border:1.5px solid var(--muted); background:transparent; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:var(--bg); font-size:13px; }
+  .task-row.done .chk { background:var(--good); border-color:var(--good); }
+  .task-row .name { flex:1; font-size:13.5px; min-width:120px; }
+  .task-row .tag { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); border:1px solid var(--line); border-radius:3px; padding:2px 6px; }
+  .task-row .hrs { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); }
+  .task-row .xp { font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; min-width:40px; text-align:right; color:var(--good); }
+  .task-row .mand { color:var(--danger); font-size:10px; }
+  .task-row .del { background:none; border:none; color:var(--muted); cursor:pointer; font-size:15px; padding:2px 4px; }
+  .task-row .del:hover { color:var(--danger); }
 
-  .toast-wrap {
-    position: fixed; top: 18px; right: 18px; z-index: 200;
-    display: flex; flex-direction: column; gap: 8px;
-  }
-  .toast {
-    background: var(--panel); border: 1px solid var(--amber); border-radius: 6px;
-    padding: 10px 14px; font-family: 'IBM Plex Mono', monospace; font-size: 12px;
-    box-shadow: 0 0 20px rgba(255,179,0,0.25);
-    animation: toast-in 0.25s ease;
-  }
-  @keyframes toast-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-  .sync-note { font-size: 10px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+  .add-form { background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:14px; display:grid; grid-template-columns: 1.6fr 1fr 0.6fr 0.6fr auto auto; gap:8px; align-items:center; margin-bottom:30px; }
+  .add-form input[type=text], .add-form select, .add-form input[type=number] { background:var(--panel-2); border:1px solid var(--line); color:var(--text); border-radius:4px; padding:8px 9px; font-size:13px; font-family:'Inter',sans-serif; width:100%; }
+  .add-form label.mand-check { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--muted); white-space:nowrap; }
+  .add-form button { background:var(--amber); border:none; color:#1a1300; font-weight:700; border-radius:4px; padding:9px 14px; cursor:pointer; font-size:13px; }
+  .add-form button:hover { filter:brightness(1.08); }
+
+  .shop-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:10px; margin-bottom:16px; }
+  .shop-item { background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:12px; display:flex; flex-direction:column; gap:8px; }
+  .shop-item .nm { font-size:13px; }
+  .shop-item .row { display:flex; justify-content:space-between; align-items:center; }
+  .shop-item .cost { font-family:'IBM Plex Mono',monospace; color:var(--amber); font-size:13px; font-weight:700; }
+  .shop-item button.buy { background:var(--amber); border:none; color:#1a1300; font-weight:700; border-radius:4px; padding:6px 12px; cursor:pointer; font-size:12px; }
+  .shop-item button.buy:hover { filter:brightness(1.08); }
+  .shop-item button.delx { background:none; border:none; color:var(--muted); cursor:pointer; font-size:13px; align-self:flex-end; }
+  .shop-item button.delx:hover { color:var(--danger); }
+  .shop-add { background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:12px; display:grid; grid-template-columns: 2fr 1fr auto; gap:8px; margin-bottom:30px; }
+  .shop-add input { background:var(--panel-2); border:1px solid var(--line); color:var(--text); border-radius:4px; padding:8px 9px; font-size:13px; width:100%; }
+  .shop-add button { background:var(--panel-2); border:1px solid var(--line); color:var(--text); border-radius:4px; padding:8px 14px; cursor:pointer; font-size:12px; }
+
+  .ach-list { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:8px; margin-bottom:30px; }
+  .ach-item { background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:10px 12px; font-size:12.5px; }
+  .ach-item .date { display:block; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); margin-top:3px; }
+  .empty-note { color:var(--muted); font-size:12px; font-style:italic; margin-bottom:16px; }
+
+  .history { margin-bottom:20px; }
+  .hist-row { display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--muted); padding:6px 0; border-bottom:1px solid var(--line); }
+  .hist-row .miss { color:var(--danger); }
+  .hist-row .clean { color:var(--good); }
+
+  .footer-row { display:flex; justify-content:space-between; align-items:center; margin-top:30px; padding-top:14px; border-top:1px solid var(--line); }
+  .reset-btn { background:none; border:1px solid var(--line); color:var(--muted); font-size:11px; padding:6px 10px; border-radius:4px; cursor:pointer; font-family:'IBM Plex Mono',monospace; }
+  .reset-btn:hover { color:var(--danger); border-color:var(--danger); }
+
+  .toast-wrap { position:fixed; top:18px; right:18px; z-index:200; display:flex; flex-direction:column; gap:8px; max-width:320px; }
+  .toast { background:var(--panel); border:1px solid var(--amber); border-radius:6px; padding:10px 14px; font-family:'IBM Plex Mono',monospace; font-size:12px; box-shadow:0 0 20px rgba(255,179,0,0.25); animation: toast-in 0.25s ease; }
+  @keyframes toast-in { from{opacity:0; transform:translateY(-8px);} to{opacity:1; transform:translateY(0);} }
+  .sync-note { font-size:10px; color:var(--muted); font-family:'IBM Plex Mono',monospace; }
+  .fatal { text-align:center; padding-top:60px; color:var(--danger); font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; }
+  .fatal .detail { color:var(--muted); font-size:11px; }
 </style>
 </head>
 <body>
@@ -256,137 +141,126 @@
 </div>
 
 <div class="toast-wrap" id="toast-wrap"></div>
-
 <div id="app"></div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-  import {
-    getFirestore, doc, getDoc, setDoc
-  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-  import {
-    getAuth, signInAnonymously, onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-
-  // ---------- FIREBASE CONFIG ----------
-  const firebaseConfig = {
-    apiKey: "AIzaSyCdz7f48TYJCH-ourCeeMi3C7ZmSEOr9NU",
-    authDomain: "rave-clone-2.firebaseapp.com",
-    projectId: "rave-clone-2",
-    storageBucket: "rave-clone-2.firebasestorage.app",
-    messagingSenderId: "112111623912",
-    appId: "1:112111623912:web:85fc83553bea1a35c2735d"
-  };
-  const fbApp = initializeApp(firebaseConfig);
-  const db = getFirestore(fbApp);
-  const auth = getAuth(fbApp);
-
-  const DOC_REF = () => doc(db, "lifeRPG", "state");
-
-  // ---------- PASSWORD GATE ----------
+<script>
+(function () {
+  // ============================================================
+  // ЧАСТЬ 1: ПАРОЛЬ
+  // ============================================================
   const PASSWORD = "NAZAR2010.GAME";
   const UNLOCK_KEY = "lrpg_unlocked";
-
-  function showApp() {
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    boot();
-  }
-
-  if (localStorage.getItem(UNLOCK_KEY) === '1') {
-    showApp();
-  }
-
-  document.getElementById('pw-btn').addEventListener('click', tryUnlock);
-  document.getElementById('pw-input').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') tryUnlock();
-  });
+  const gateBtn = document.getElementById('pw-btn');
+  const gateInput = document.getElementById('pw-input');
+  gateBtn.addEventListener('click', tryUnlock);
+  gateInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryUnlock(); });
 
   function tryUnlock() {
-    const val = document.getElementById('pw-input').value;
-    if (val === PASSWORD) {
+    if (gateInput.value === PASSWORD) {
       localStorage.setItem(UNLOCK_KEY, '1');
       showApp();
     } else {
       const card = document.getElementById('gate-card');
       document.getElementById('pw-error').textContent = 'Неверный пароль';
-      card.classList.remove('shake');
-      void card.offsetWidth;
-      card.classList.add('shake');
+      card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
     }
   }
+  function showApp() {
+    document.getElementById('gate').style.display = 'none';
+    const app = document.getElementById('app');
+    app.style.display = 'block';
+    app.innerHTML = '<p class="fatal" style="color:var(--muted)">Загрузка...</p>';
+    boot();
+  }
+  if (localStorage.getItem(UNLOCK_KEY) === '1') showApp();
 
-  // ---------- APP LOGIC ----------
-  const CATS = [
-    { key: 'SLEEP', label: 'Сон', color: '#6EA8FE' },
-    { key: 'BODY', label: 'Тело', color: '#FF6B6B' },
-    { key: 'MIND', label: 'Разум', color: '#34D2C0' },
-    { key: 'WORK', label: 'Работа', color: '#FFB300' },
+  // ============================================================
+  // ЧАСТЬ 2: ДАННЫЕ
+  // ============================================================
+  const DEFAULT_SKILLS = [
+    { key: 'CODE', label: 'Программирование', color: '#34D2C0' },
+    { key: 'CYBER', label: 'Кибербезопасность', color: '#6EA8FE' },
+    { key: 'ENG', label: 'Английский', color: '#FFB300' },
+    { key: 'MATH', label: 'Математика', color: '#C792EA' },
+    { key: 'SPORT', label: 'Спорт', color: '#FF6B6B' },
+    { key: 'WILL', label: 'Дисциплина', color: '#F4A261' },
     { key: 'MONEY', label: 'Финансы', color: '#7ED957' },
-    { key: 'WILL', label: 'Воля', color: '#C792EA' },
+    { key: 'SOCIAL', label: 'Общение', color: '#FF8FAB' },
+    { key: 'CREATE', label: 'Творчество', color: '#9D8DF1' },
   ];
-  const MILESTONES = [5, 10, 25, 50, 100];
+  const COLOR_PALETTE = ['#34D2C0','#6EA8FE','#FFB300','#C792EA','#FF6B6B','#F4A261','#7ED957','#FF8FAB','#9D8DF1','#5FD0F3','#E0C341','#B0F2B6'];
+  const XP_PER_LEVEL = 1000;
+  const HOUR_MILESTONES = [50, 100, 250, 500, 1000];
+  const STREAK_MILESTONES = [7, 30, 100, 365];
+  const LEVEL_MILESTONES = [2, 5, 10, 25, 50, 100];
+  const HISTORY_CAP = 60;
 
-  function threshold(level) { return level * 100; }
-
-  function todayStr(d) {
-    d = d || new Date();
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  }
-  function addDays(dateStr, n) {
-    const d = new Date(dateStr + 'T00:00:00');
-    d.setDate(d.getDate() + n);
-    return todayStr(d);
-  }
+  function threshold(level) { return level * XP_PER_LEVEL; }
+  function todayStr(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+  function addDays(dateStr, n) { const d = new Date(dateStr + 'T00:00:00'); d.setDate(d.getDate()+n); return todayStr(d); }
 
   function defaultState() {
-    const categories = {};
-    CATS.forEach(c => categories[c.key] = { level: 1, xp: 0 });
+    const skillStats = {};
+    DEFAULT_SKILLS.forEach(s => skillStats[s.key] = { totalXp: 0, totalHours: 0 });
     return {
+      level: 1,
+      xp: 0,
+      todayNetXp: 0,
+      skillDefs: DEFAULT_SKILLS.map(s => ({ ...s })),
+      skillStats,
       tasks: [
-        { id: 't1', name: 'Подъём по расписанию', category: 'SLEEP', xp: 15, mandatory: true },
-        { id: 't2', name: 'Отбой по расписанию', category: 'SLEEP', xp: 10, mandatory: true },
-        { id: 't3', name: 'Тренировка 30+ мин', category: 'BODY', xp: 20, mandatory: false },
-        { id: 't4', name: '20 страниц книги', category: 'MIND', xp: 10, mandatory: true },
-        { id: 't5', name: '30 мин фокусной учёбы', category: 'MIND', xp: 20, mandatory: false },
-        { id: 't6', name: 'Закрытая рабочая задача', category: 'WORK', xp: 25, mandatory: false },
-        { id: 't7', name: 'Учёт расходов за день', category: 'MONEY', xp: 5, mandatory: false },
-        { id: 't8', name: 'Сделано то, что откладывал', category: 'WILL', xp: 30, mandatory: false },
+        { id: 't1', name: '30 мин кода / Python', skill: 'CODE', xp: 20, hours: 0.5, mandatory: false },
+        { id: 't2', name: 'Практика по кибербезопасности', skill: 'CYBER', xp: 20, hours: 0.5, mandatory: false },
+        { id: 't3', name: '30 мин английского', skill: 'ENG', xp: 15, hours: 0.5, mandatory: false },
+        { id: 't4', name: 'Задачи по математике 30 мин', skill: 'MATH', xp: 15, hours: 0.5, mandatory: false },
+        { id: 't5', name: 'Тренировка 30+ мин', skill: 'SPORT', xp: 20, hours: 0.5, mandatory: false },
+        { id: 't6', name: 'Подъём по расписанию', skill: 'WILL', xp: 15, hours: 0, mandatory: true },
+        { id: 't7', name: 'Отбой по расписанию', skill: 'WILL', xp: 10, hours: 0, mandatory: true },
+        { id: 't8', name: 'Сделано то, что откладывал', skill: 'WILL', xp: 30, hours: 0, mandatory: false },
+        { id: 't9', name: 'Учёт расходов / шаг по финансам', skill: 'MONEY', xp: 10, hours: 0, mandatory: false },
+        { id: 't10', name: 'Творческая практика 30 мин', skill: 'CREATE', xp: 15, hours: 0.5, mandatory: false },
       ],
-      categories,
       todayDate: todayStr(),
       todayChecks: {},
       history: [],
       streak: 0,
+      coins: 0,
+      achievements: [],
+      shop: [
+        { id: 's1', name: 'Посмотреть фильм/эпизод', cost: 20 },
+        { id: 's2', name: 'Любимая еда', cost: 30 },
+        { id: 's3', name: 'Игровая сессия 1 час', cost: 25 },
+        { id: 's4', name: 'Выходной день от протокола', cost: 100 },
+      ],
     };
   }
 
-  function addCategoryXP(catState, amount) {
-    catState.xp += amount;
+  function addGlobalXP(amount) {
+    state.xp += amount;
     if (amount > 0) {
-      while (catState.xp >= threshold(catState.level)) {
-        catState.xp -= threshold(catState.level);
-        catState.level += 1;
-      }
+      while (state.xp >= threshold(state.level)) { state.xp -= threshold(state.level); state.level += 1; }
     } else if (amount < 0) {
-      while (catState.xp < 0) {
-        if (catState.level > 1) {
-          catState.level -= 1;
-          catState.xp += threshold(catState.level);
-        } else {
-          catState.xp = 0;
-          break;
-        }
+      while (state.xp < 0) {
+        if (state.level > 1) { state.level -= 1; state.xp += threshold(state.level); }
+        else { state.xp = 0; break; }
       }
     }
   }
-  function applyPenalty(catState, amount) {
-    catState.xp -= amount;
-    if (catState.xp < 0) catState.xp = 0;
+  function applyPenalty(amount) { state.xp -= amount; if (state.xp < 0) state.xp = 0; }
+
+  function applyTaskCompletion(task, completing) {
+    const sign = completing ? 1 : -1;
+    addGlobalXP(sign * task.xp);
+    state.todayNetXp = (state.todayNetXp || 0) + sign * task.xp;
+    const sk = state.skillStats[task.skill];
+    if (sk) {
+      sk.totalXp = Math.max(0, sk.totalXp + sign * task.xp);
+      sk.totalHours = Math.max(0, sk.totalHours + sign * (task.hours || 0));
+    }
+    state.coins = Math.max(0, state.coins + sign * Math.floor(task.xp / 10));
   }
 
   let state = null;
-  let saving = false;
 
   function toast(msg) {
     const wrap = document.getElementById('toast-wrap');
@@ -394,28 +268,21 @@
     t.className = 'toast mono';
     t.textContent = msg;
     wrap.appendChild(t);
-    setTimeout(() => t.remove(), 4200);
+    setTimeout(() => t.remove(), 5200);
   }
 
-  async function loadState() {
-    try {
-      const snap = await getDoc(DOC_REF());
-      if (snap.exists()) return snap.data();
-    } catch (e) {
-      console.error('load failed', e);
+  function checkAchievements() {
+    const have = new Set(state.achievements.map(a => a.id));
+    function tryAdd(id, label) {
+      if (!have.has(id)) { state.achievements.unshift({ id, label, date: todayStr() }); have.add(id); toast('🏆 Достижение: ' + label); }
     }
-    return null;
-  }
-
-  async function saveState() {
-    saving = true;
-    try {
-      await setDoc(DOC_REF(), state);
-    } catch (e) {
-      console.error('save failed', e);
-      toast('⚠ Ошибка сохранения — проверь Firestore правила');
-    }
-    saving = false;
+    STREAK_MILESTONES.forEach(m => { if (state.streak >= m) tryAdd('streak_' + m, 'Серия ' + m + ' дней подряд'); });
+    LEVEL_MILESTONES.forEach(m => { if (state.level >= m) tryAdd('lvl_' + m, 'Общий уровень ' + m); });
+    state.skillDefs.forEach(s => {
+      const sk = state.skillStats[s.key];
+      if (!sk) return;
+      HOUR_MILESTONES.forEach(m => { if (sk.totalHours >= m) tryAdd(s.key + '_h' + m, m + ' часов: ' + s.label); });
+    });
   }
 
   function rollover() {
@@ -425,12 +292,9 @@
       guard++;
       const mandatoryTasks = state.tasks.filter(t => t.mandatory);
       let allDone = true;
+      let netXp = state.todayNetXp || 0;
       mandatoryTasks.forEach(t => {
-        const done = !!state.todayChecks[t.id];
-        if (!done) {
-          allDone = false;
-          applyPenalty(state.categories[t.category], t.xp);
-        }
+        if (!state.todayChecks[t.id]) { allDone = false; applyPenalty(t.xp); netXp -= t.xp; }
       });
       if (mandatoryTasks.length === 0) allDone = false;
       state.streak = allDone ? state.streak + 1 : 0;
@@ -439,192 +303,379 @@
         missed: mandatoryTasks.filter(t => !state.todayChecks[t.id]).length,
         totalMandatory: mandatoryTasks.length,
         streakAfter: state.streak,
+        netXp: netXp,
       });
-      state.history = state.history.slice(0, 14);
+      state.history = state.history.slice(0, HISTORY_CAP);
       state.todayChecks = {};
+      state.todayNetXp = 0;
       state.todayDate = addDays(state.todayDate, 1);
     }
-  }
-
-  function overallLevel() {
-    const levels = CATS.map(c => state.categories[c.key].level);
-    return Math.round(levels.reduce((a, b) => a + b, 0) / levels.length);
-  }
-  function nextMilestone(level) {
-    for (const m of MILESTONES) if (m > level) return m;
-    return null;
+    checkAchievements();
   }
 
   function toggleTask(id) {
     const task = state.tasks.find(t => t.id === id);
     if (!task) return;
-    const cat = state.categories[task.category];
-    const before = cat.level;
+    const before = state.level;
     const isDone = !!state.todayChecks[id];
-    if (isDone) {
-      state.todayChecks[id] = false;
-      addCategoryXP(cat, -task.xp);
-    } else {
-      state.todayChecks[id] = true;
-      addCategoryXP(cat, task.xp);
-    }
-    if (cat.level > before) {
-      const catMeta = CATS.find(c => c.key === task.category);
-      const nm = nextMilestone(before);
-      toast('⚡ LEVEL UP: ' + catMeta.label + ' → ' + cat.level + (nm === cat.level ? ' 🎁 награда!' : ''));
-    }
+    state.todayChecks[id] = !isDone;
+    applyTaskCompletion(task, !isDone);
+    if (state.level > before) toast('⚡ LEVEL UP! Общий уровень → ' + state.level);
+    checkAchievements();
     saveState();
     render();
   }
 
   function deleteTask(id) {
     const task = state.tasks.find(t => t.id === id);
-    if (task && state.todayChecks[id]) {
-      addCategoryXP(state.categories[task.category], -task.xp);
-    }
+    if (task && state.todayChecks[id]) applyTaskCompletion(task, false);
     state.tasks = state.tasks.filter(t => t.id !== id);
     delete state.todayChecks[id];
-    saveState();
-    render();
+    saveState(); render();
   }
 
-  function addTask(name, category, xp, mandatory) {
-    const id = 't_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-    state.tasks.push({ id, name, category, xp: Math.max(1, xp | 0), mandatory });
+  function addTask(name, skill, xp, hours, mandatory) {
+    const id = 't_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+    state.tasks.push({ id, name, skill, xp: Math.max(1, xp|0), hours: Math.max(0, hours||0), mandatory });
+    saveState(); render();
+  }
+
+  function buyItem(id) {
+    const item = state.shop.find(s => s.id === id);
+    if (!item) return;
+    if (state.coins < item.cost) { toast('Недостаточно монет: нужно ' + item.cost + ', есть ' + state.coins); return; }
+    state.coins -= item.cost;
+    toast('✅ Куплено: ' + item.name + ' — не забудь наградить себя по-настоящему');
+    saveState(); render();
+  }
+  function deleteShopItem(id) { state.shop = state.shop.filter(s => s.id !== id); saveState(); render(); }
+  function addShopItem(name, cost) {
+    const id = 'shop_' + Date.now();
+    state.shop.push({ id, name, cost: Math.max(1, cost|0) });
+    saveState(); render();
+  }
+
+  // ---- управление навыками ----
+  function renameSkill(key, newLabel) {
+    const s = state.skillDefs.find(s => s.key === key);
+    if (!s || !newLabel.trim()) return;
+    s.label = newLabel.trim();
     saveState();
-    render();
+  }
+  function deleteSkill(key) {
+    if (state.skillDefs.length <= 1) { toast('Должен остаться хотя бы один навык'); return; }
+    const affected = state.tasks.filter(t => t.skill === key).length;
+    const msg = affected > 0
+      ? 'Удалить навык? Заодно удалятся ' + affected + ' задани' + (affected===1?'e':'я') + ', связанны' + (affected===1?'ое':'ых') + ' с ним. Статистика по навыку тоже сотрётся.'
+      : 'Удалить навык и его статистику?';
+    if (!confirm(msg)) return;
+    state.skillDefs = state.skillDefs.filter(s => s.key !== key);
+    delete state.skillStats[key];
+    state.tasks = state.tasks.filter(t => t.skill !== key);
+    saveState(); render();
+  }
+  function addSkill(name) {
+    if (!name.trim()) return;
+    const key = 'sk_' + Date.now();
+    const color = COLOR_PALETTE[state.skillDefs.length % COLOR_PALETTE.length];
+    state.skillDefs.push({ key, label: name.trim(), color });
+    state.skillStats[key] = { totalXp: 0, totalHours: 0 };
+    saveState(); render();
   }
 
   async function resetAll() {
-    if (!confirm('Стереть весь прогресс и задания? Это необратимо.')) return;
+    if (!confirm('Стереть весь прогресс, задания, навыки, достижения и монеты? Это необратимо.')) return;
     state = defaultState();
-    await saveState();
-    render();
+    await saveState(); render();
+  }
+
+  // ---- вспомогательное: отчёт за неделю ----
+  function weekSummary() {
+    const last7 = state.history.slice(0, 7);
+    if (!last7.length) return null;
+    const total = last7.reduce((a,h) => a + (h.netXp||0), 0);
+    const avg = Math.round(total / last7.length);
+    let best = last7[0], worst = last7[0];
+    last7.forEach(h => { if ((h.netXp||0) > (best.netXp||0)) best = h; if ((h.netXp||0) < (worst.netXp||0)) worst = h; });
+    return { total, avg, best, worst, days: last7.length };
+  }
+
+  // ---- график XP по дням (SVG) ----
+  function buildChartSvg() {
+    const arr = state.history.slice(0, 30).slice().reverse();
+    if (arr.length < 2) {
+      return '<div class="chart-empty">Недостаточно данных для графика — появится через пару закрытых дней.</div>';
+    }
+    const values = arr.map(h => h.netXp || 0);
+    const W = 680, H = 170, PL = 36, PR = 10, PT = 14, PB = 22;
+    const n = values.length;
+    const xStep = (W - PL - PR) / (n - 1);
+    const maxV = Math.max.apply(null, values.concat([0]));
+    const minV = Math.min.apply(null, values.concat([0]));
+    const range = (maxV - minV) || 1;
+    function yFor(v) { return PT + (H - PT - PB) * (1 - (v - minV) / range); }
+    const zeroY = yFor(0).toFixed(1);
+    const pts = values.map((v,i) => (PL + i*xStep).toFixed(1) + ',' + yFor(v).toFixed(1));
+    const linePoints = pts.join(' ');
+    const areaPath = 'M' + (PL).toFixed(1) + ',' + zeroY + ' L' + pts.join(' L') + ' L' + (PL+(n-1)*xStep).toFixed(1) + ',' + zeroY + ' Z';
+    const dots = values.map((v,i) => {
+      const x = (PL + i*xStep).toFixed(1), y = yFor(v).toFixed(1);
+      return '<circle cx="'+x+'" cy="'+y+'" r="2.6" style="fill:var(--amber)"><title>'+arr[i].date+': '+v+' XP</title></circle>';
+    }).join('');
+    return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:170px;overflow:visible">' +
+      '<line x1="'+PL+'" y1="'+zeroY+'" x2="'+(W-PR)+'" y2="'+zeroY+'" style="stroke:var(--line);stroke-width:1" />' +
+      '<path d="'+areaPath+'" style="fill:var(--amber);opacity:0.12;stroke:none" />' +
+      '<polyline points="'+linePoints+'" style="fill:none;stroke:var(--amber);stroke-width:2" />' +
+      dots +
+      '<text x="'+PL+'" y="'+(H-4)+'" style="fill:var(--muted);font-size:9px;font-family:monospace">'+arr[0].date+'</text>' +
+      '<text x="'+(W-PR)+'" y="'+(H-4)+'" text-anchor="end" style="fill:var(--muted);font-size:9px;font-family:monospace">'+arr[n-1].date+'</text>' +
+      '<text x="'+(PL-4)+'" y="'+(yFor(maxV)+3)+'" text-anchor="end" style="fill:var(--muted);font-size:9px;font-family:monospace">'+maxV+'</text>' +
+      '<text x="'+(PL-4)+'" y="'+(yFor(minV)+3)+'" text-anchor="end" style="fill:var(--muted);font-size:9px;font-family:monospace">'+minV+'</text>' +
+      '</svg>';
   }
 
   function render() {
     const app = document.getElementById('app');
-    const lvl = overallLevel();
+    const th = threshold(state.level);
+    const pct = Math.min(100, Math.round((state.xp / th) * 100));
+    const week = weekSummary();
 
-    const gauges = CATS.map(c => {
-      const cs = state.categories[c.key];
-      const th = threshold(cs.level);
-      const pct = Math.min(100, Math.round((cs.xp / th) * 100));
-      const nm = nextMilestone(cs.level);
-      return `
-        <div class="gauge">
-          <div class="top">
-            <span class="cat-name">${c.label}</span>
-            <span class="lvl" style="color:${c.color}">${cs.level}</span>
-          </div>
-          <div class="track"><div class="fill" style="width:${pct}%;background:${c.color}"></div></div>
-          <div class="meta"><span>${cs.xp}/${th} XP</span><span>${nm ? 'ур.' + nm + ' 🎁' : '—'}</span></div>
-        </div>`;
-    }).join('');
+    const weekHtml = week ? (
+      '<div class="week-block"><div class="wtitle">📅 Отчёт за последние ' + week.days + ' дн.</div>' +
+      '<div class="week-grid">' +
+      '<div class="week-stat"><div class="v '+(week.total<0?'neg':'')+'">'+(week.total>0?'+':'')+week.total+'</div><div class="l">XP за период</div></div>' +
+      '<div class="week-stat"><div class="v">'+week.avg+'</div><div class="l">в среднем/день</div></div>' +
+      '<div class="week-stat"><div class="v">'+(week.best.netXp>0?'+':'')+week.best.netXp+'</div><div class="l">лучший день ('+week.best.date+')</div></div>' +
+      '<div class="week-stat"><div class="v '+(week.worst.netXp<0?'neg':'')+'">'+(week.worst.netXp>0?'+':'')+week.worst.netXp+'</div><div class="l">просадка ('+week.worst.date+')</div></div>' +
+      '</div></div>'
+    ) : '<div class="week-block"><div class="wtitle">📅 Отчёт за неделю</div><div class="empty-note" style="margin:0">Появится после первого закрытого дня.</div></div>';
 
-    const tasksByCat = CATS.map(c => {
-      const tasks = state.tasks.filter(t => t.category === c.key);
+    const tasksByCat = state.skillDefs.map(s => {
+      const tasks = state.tasks.filter(t => t.skill === s.key);
       if (!tasks.length) return '';
       return tasks.map(t => {
         const done = !!state.todayChecks[t.id];
-        return `
-          <div class="task-row ${done ? 'done' : ''}">
-            <div class="chk" data-toggle="${t.id}">${done ? '✓' : ''}</div>
-            <span class="name">${t.name}</span>
-            ${t.mandatory ? '<span class="mand">ОБЯЗАТ.</span>' : ''}
-            <span class="tag" style="color:${c.color};border-color:${c.color}">${c.label}</span>
-            <span class="xp" style="color:var(--good)">+${t.xp}</span>
-            <button class="del" data-del="${t.id}" title="Удалить задание">✕</button>
-          </div>`;
+        return '<div class="task-row '+(done?'done':'')+'">'+
+          '<div class="chk" data-toggle="'+t.id+'">'+(done?'✓':'')+'</div>'+
+          '<span class="name">'+t.name+'</span>'+
+          (t.mandatory ? '<span class="mand">ОБЯЗАТ.</span>' : '')+
+          '<span class="tag" style="color:'+s.color+';border-color:'+s.color+'">'+s.label+'</span>'+
+          (t.hours ? '<span class="hrs">'+t.hours+'ч</span>' : '')+
+          '<span class="xp">+'+t.xp+'</span>'+
+          '<button class="del" data-del="'+t.id+'" title="Удалить">✕</button></div>';
       }).join('');
     }).join('');
 
-    const catOptions = CATS.map(c => `<option value="${c.key}">${c.label}</option>`).join('');
+    const skillOptions = state.skillDefs.map(s => '<option value="'+s.key+'">'+s.label+'</option>').join('');
 
-    const historyRows = state.history.map(h => {
-      const clean = h.missed === 0;
-      return `
-        <div class="hist-row">
-          <span>${h.date}</span>
-          <span class="${clean ? 'clean' : 'miss'}">${clean ? 'чисто' : h.missed + '/' + h.totalMandatory + ' пропущено'}</span>
-          <span>streak: ${h.streakAfter}</span>
-        </div>`;
+    const shopItems = state.shop.map(it => {
+      return '<div class="shop-item"><button class="delx" data-shopdel="'+it.id+'">✕</button>'+
+        '<div class="nm">'+it.name+'</div>'+
+        '<div class="row"><span class="cost mono">'+it.cost+' 🪙</span><button class="buy" data-buy="'+it.id+'">Купить</button></div></div>';
     }).join('');
 
-    app.innerHTML = `
-      <div class="header">
-        <div>
-          <div class="eyebrow">Life RPG · Протокол</div>
-          <h1>${todayStr() === state.todayDate ? 'Сегодня, ' + state.todayDate : state.todayDate}</h1>
-        </div>
-        <div class="overall">
-          <div class="num mono">${lvl}</div>
-          <div class="lbl">общий уровень</div>
-        </div>
-      </div>
+    let totalXpAll = 0, totalHoursAll = 0;
+    const skillRows = state.skillDefs.map(s => {
+      const sk = state.skillStats[s.key] || { totalXp: 0, totalHours: 0 };
+      totalXpAll += sk.totalXp; totalHoursAll += sk.totalHours;
+      return '<div class="skill-row"><span class="sw" style="background:'+s.color+'"></span>'+
+        '<input class="sk-name mono" value="'+s.label.replace(/"/g,'&quot;')+'" data-rename="'+s.key+'" />'+
+        '<span class="sk-stat">'+sk.totalXp+' XP · '+sk.totalHours.toFixed(1)+'ч</span>'+
+        '<button class="sk-del" data-skdel="'+s.key+'" title="Удалить навык">✕</button></div>';
+    }).join('');
 
-      <div class="streak-bar mono"><span class="dot">●</span> streak: ${state.streak} ${state.streak > 0 ? 'дн.' : ''} &nbsp;·&nbsp; бонус XP: +${Math.min(50, state.streak * 5)}%</div>
+    const achRows = state.achievements.slice(0, 30).map(a => '<div class="ach-item">🏅 '+a.label+'<span class="date">'+a.date+'</span></div>').join('');
 
-      <div class="gauges">${gauges}</div>
+    const historyRows = state.history.slice(0,14).map(h => {
+      const clean = h.missed === 0;
+      return '<div class="hist-row"><span>'+h.date+'</span><span class="'+(clean?'clean':'miss')+'">'+(clean?'чисто':h.missed+'/'+h.totalMandatory+' пропущено')+'</span><span>'+(h.netXp>0?'+':'')+h.netXp+' XP</span><span>streak: '+h.streakAfter+'</span></div>';
+    }).join('');
 
-      <div class="section-title">Задания на сегодня</div>
-      <div class="task-list">
-        ${tasksByCat || '<div class="empty-note">Заданий нет — добавь первое ниже.</div>'}
-      </div>
+    app.innerHTML =
+      '<div class="header"><div><div class="eyebrow">Life RPG · Протокол</div><h1>'+(todayStr()===state.todayDate ? 'Сегодня, '+state.todayDate : state.todayDate)+'</h1></div>'+
+      '<div class="overall"><div class="num mono">'+state.level+'</div><div class="lbl">общий уровень</div></div></div>'+
 
-      <div class="section-title">Добавить задание</div>
-      <div class="add-form">
-        <input type="text" id="new-name" placeholder="Название задания" />
-        <select id="new-cat">${catOptions}</select>
-        <input type="number" id="new-xp" placeholder="XP" value="10" min="1" />
-        <label class="mand-check"><input type="checkbox" id="new-mand" /> обязательное</label>
-        <button id="add-btn">Добавить</button>
-      </div>
+      '<div class="xp-block"><div class="row-top"><span>прогресс к уровню '+(state.level+1)+'</span><b>'+state.xp+' / '+th+' XP</b></div>'+
+      '<div class="xp-track"><div class="xp-fill" style="width:'+pct+'%"></div></div></div>'+
 
-      <div class="section-title">История</div>
-      <div class="history">
-        ${historyRows || '<div class="empty-note">Пока нет закрытых дней.</div>'}
-      </div>
+      weekHtml +
 
-      <div class="footer-row">
-        <span class="sync-note">синхронизировано с Firestore</span>
-        <button class="reset-btn" id="reset-btn">Сбросить всё</button>
-      </div>
-    `;
+      '<div class="top-stats"><span><span class="dot">●</span> streak: '+state.streak+' '+(state.streak>0?'дн.':'')+'</span>'+
+      '<span>бонус XP: +'+Math.min(50, state.streak*5)+'%</span>'+
+      '<span class="coin">🪙 '+state.coins+' монет</span></div>'+
 
-    app.querySelectorAll('[data-toggle]').forEach(elx => {
-      elx.addEventListener('click', () => toggleTask(elx.getAttribute('data-toggle')));
+      '<div class="chart-block"><div class="ctitle">📈 График XP по дням (последние 30)</div>'+buildChartSvg()+'</div>'+
+
+      '<div class="section-title">Твои навыки (переименуй, удали или добавь — на уровень не влияют, только статистика)</div>'+
+      skillRows+
+      '<div class="skill-row totals"><span class="sw" style="background:var(--amber)"></span><span style="flex:1">ИТОГО</span><span class="sk-stat">'+totalXpAll+' XP · '+totalHoursAll.toFixed(1)+'ч</span><span style="width:20px"></span></div>'+
+      '<div class="add-skill-form"><input type="text" id="new-skill-name" placeholder="Название нового навыка (например, Гитара)" />'+
+      '<button id="add-skill-btn">Добавить навык</button></div>'+
+
+      '<div class="section-title">Задания на сегодня</div>'+
+      '<div class="task-list">'+(tasksByCat || '<div class="empty-note">Заданий нет — добавь ниже.</div>')+'</div>'+
+
+      '<div class="section-title">Добавить задание</div>'+
+      '<div class="add-form">'+
+        '<input type="text" id="new-name" placeholder="Название задания" />'+
+        '<select id="new-skill">'+skillOptions+'</select>'+
+        '<input type="number" id="new-xp" placeholder="XP" value="10" min="1" />'+
+        '<input type="number" id="new-hours" placeholder="часы" value="0" min="0" step="0.25" />'+
+        '<label class="mand-check"><input type="checkbox" id="new-mand" /> обязат.</label>'+
+        '<button id="add-btn">Добавить</button>'+
+      '</div>'+
+
+      '<div class="section-title">Магазин наград (🪙 '+state.coins+')</div>'+
+      '<div class="shop-grid">'+(shopItems || '<div class="empty-note">Пусто.</div>')+'</div>'+
+      '<div class="shop-add">'+
+        '<input type="text" id="shop-name" placeholder="Название награды" />'+
+        '<input type="number" id="shop-cost" placeholder="Цена в монетах" value="20" min="1" />'+
+        '<button id="shop-add-btn">Добавить</button>'+
+      '</div>'+
+
+      '<div class="section-title">Достижения ('+state.achievements.length+')</div>'+
+      '<div class="ach-list">'+(achRows || '<div class="empty-note">Пока нет достижений — вперёд.</div>')+'</div>'+
+
+      '<div class="section-title">История</div>'+
+      '<div class="history">'+(historyRows || '<div class="empty-note">Пока нет закрытых дней.</div>')+'</div>'+
+
+      '<div class="footer-row"><span class="sync-note">синхронизировано с Firestore</span>'+
+      '<button class="reset-btn" id="reset-btn">Сбросить всё</button></div>';
+
+    app.querySelectorAll('[data-toggle]').forEach(el => el.addEventListener('click', () => toggleTask(el.getAttribute('data-toggle'))));
+    app.querySelectorAll('[data-del]').forEach(el => el.addEventListener('click', (e) => { e.stopPropagation(); deleteTask(el.getAttribute('data-del')); }));
+    app.querySelectorAll('[data-buy]').forEach(el => el.addEventListener('click', () => buyItem(el.getAttribute('data-buy'))));
+    app.querySelectorAll('[data-shopdel]').forEach(el => el.addEventListener('click', () => deleteShopItem(el.getAttribute('data-shopdel'))));
+    app.querySelectorAll('[data-skdel]').forEach(el => el.addEventListener('click', () => deleteSkill(el.getAttribute('data-skdel'))));
+    app.querySelectorAll('[data-rename]').forEach(el => {
+      el.addEventListener('change', () => renameSkill(el.getAttribute('data-rename'), el.value));
     });
-    app.querySelectorAll('[data-del]').forEach(elx => {
-      elx.addEventListener('click', (e) => { e.stopPropagation(); deleteTask(elx.getAttribute('data-del')); });
-    });
+
     document.getElementById('add-btn').addEventListener('click', () => {
       const name = document.getElementById('new-name').value.trim();
-      const category = document.getElementById('new-cat').value;
+      const skill = document.getElementById('new-skill').value;
       const xp = parseInt(document.getElementById('new-xp').value, 10) || 10;
+      const hours = parseFloat(document.getElementById('new-hours').value) || 0;
       const mandatory = document.getElementById('new-mand').checked;
       if (!name) return;
-      addTask(name, category, xp, mandatory);
+      addTask(name, skill, xp, hours, mandatory);
+    });
+    document.getElementById('shop-add-btn').addEventListener('click', () => {
+      const name = document.getElementById('shop-name').value.trim();
+      const cost = parseInt(document.getElementById('shop-cost').value, 10) || 20;
+      if (!name) return;
+      addShopItem(name, cost);
+    });
+    document.getElementById('add-skill-btn').addEventListener('click', () => {
+      const name = document.getElementById('new-skill-name').value.trim();
+      if (!name) return;
+      addSkill(name);
     });
     document.getElementById('reset-btn').addEventListener('click', resetAll);
   }
 
-  async function boot() {
-    document.getElementById('app').innerHTML = '<p class="mono" style="text-align:center;padding-top:60px;color:var(--muted)">Загрузка...</p>';
+  // ============================================================
+  // ЧАСТЬ 3: FIREBASE
+  // ============================================================
+  let fb = null;
+
+  async function initFirebase() {
+    const firebaseConfig = {
+      apiKey: "AIzaSyCdz7f48TYJCH-ourCeeMi3C7ZmSEOr9NU",
+      authDomain: "rave-clone-2.firebaseapp.com",
+      projectId: "rave-clone-2",
+      storageBucket: "rave-clone-2.firebasestorage.app",
+      messagingSenderId: "112111623912",
+      appId: "1:112111623912:web:85fc83553bea1a35c2735d"
+    };
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js");
+    const { getFirestore, doc, getDoc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js");
+    const { getAuth, signInAnonymously, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js");
+    const fbApp = initializeApp(firebaseConfig);
+    const db = getFirestore(fbApp);
+    const auth = getAuth(fbApp);
+    fb = { auth, signInAnonymously, onAuthStateChanged, getDoc, setDoc, DOC_REF: () => doc(db, "lifeRPG", "state") };
+  }
+
+  async function loadState() {
     try {
-      await signInAnonymously(auth);
+      const snap = await fb.getDoc(fb.DOC_REF());
+      if (snap.exists()) return snap.data();
     } catch (e) {
-      console.error('auth failed', e);
+      console.error('load failed', e);
+      toast('⚠ Не удалось загрузить прогресс (' + (e.code || e.message || e) + ')');
     }
-    onAuthStateChanged(auth, async (user) => {
+    return null;
+  }
+  async function saveState() {
+    if (!fb) return;
+    try { await fb.setDoc(fb.DOC_REF(), state); }
+    catch (e) { console.error('save failed', e); toast('⚠ Ошибка сохранения — проверь правила Firestore (' + (e.code || e.message || e) + ')'); }
+  }
+  function showFatal(title, detail) {
+    document.getElementById('app').innerHTML = '<div class="fatal">⚠ ' + title + '<br><span class="detail">' + (detail||'') + '</span></div>';
+  }
+
+  function migrateState(loaded) {
+    const st = loaded || defaultState();
+    if (typeof st.level !== 'number') st.level = 1;
+    if (typeof st.xp !== 'number') st.xp = 0;
+    if (typeof st.todayNetXp !== 'number') st.todayNetXp = 0;
+    if (!st.coins && st.coins !== 0) st.coins = 0;
+    if (!st.achievements) st.achievements = [];
+    if (!st.shop) st.shop = defaultState().shop;
+    if (!st.skillDefs) {
+      // старое сохранение: пытаемся достать имена из старого поля skills, иначе дефолт
+      st.skillDefs = DEFAULT_SKILLS.map(s => ({ ...s }));
+    }
+    if (!st.skillStats) {
+      st.skillStats = {};
+      const oldSkills = st.skills || {};
+      st.skillDefs.forEach(s => {
+        st.skillStats[s.key] = oldSkills[s.key]
+          ? { totalXp: oldSkills[s.key].totalXp || 0, totalHours: oldSkills[s.key].totalHours || 0 }
+          : { totalXp: 0, totalHours: 0 };
+      });
+    }
+    st.skillDefs.forEach(s => { if (!st.skillStats[s.key]) st.skillStats[s.key] = { totalXp: 0, totalHours: 0 }; });
+    delete st.skills;
+    return st;
+  }
+
+  function maybeShowMondayBanner() {
+    const isMonday = new Date().getDay() === 1;
+    const bannerKey = 'lrpg_monday_banner_' + todayStr();
+    if (!isMonday || localStorage.getItem(bannerKey)) return;
+    const w = weekSummary();
+    if (!w) return;
+    toast('📅 Новая неделя! За прошлую: ' + (w.total>0?'+':'') + w.total + ' XP, лучший день — ' + w.best.date);
+    localStorage.setItem(bannerKey, '1');
+  }
+
+  async function boot() {
+    try { await initFirebase(); }
+    catch (e) {
+      console.error('firebase init failed', e);
+      showFatal('Не удалось загрузить Firebase.', 'Проверь интернет-соединение и блокировщики рекламы, затем обнови страницу.<br>' + (e && e.message ? e.message : e));
+      return;
+    }
+    try { await fb.signInAnonymously(fb.auth); }
+    catch (e) {
+      console.error('auth failed', e);
+      showFatal('Не удалось войти анонимно.', 'Скорее всего в Firebase Console не включён Anonymous sign-in (Authentication → Sign-in method).<br>' + (e && e.code ? e.code : ''));
+      return;
+    }
+    fb.onAuthStateChanged(fb.auth, async (user) => {
       if (!user) return;
       const loaded = await loadState();
-      state = loaded || defaultState();
+      state = migrateState(loaded);
       rollover();
       await saveState();
       render();
+      maybeShowMondayBanner();
     });
   }
+})();
 </script>
 </body>
 </html>
