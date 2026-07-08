@@ -30,18 +30,23 @@
   @keyframes shake { 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
 
   #app { display:none; max-width:960px; margin:0 auto; padding:28px 20px 60px; }
-  .header { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--line); padding-bottom:18px; margin-bottom:18px; }
+  .header { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--line); padding-bottom:18px; margin-bottom:8px; }
   .header .eyebrow { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.14em; color:var(--muted); text-transform:uppercase; margin-bottom:6px; }
   .header h1 { font-size:22px; margin:0; font-weight:600; letter-spacing:-0.01em; }
   .overall { text-align:right; }
   .overall .num { font-family:'IBM Plex Mono',monospace; font-size:44px; font-weight:700; color:var(--amber); line-height:1; }
   .overall .lbl { font-size:11px; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; margin-top:4px; }
 
+  .quote-line { font-size:12px; color:var(--muted); font-style:italic; margin:0 0 20px; padding-left:2px; border-left:2px solid var(--line); padding-left:10px; }
+
   .xp-block { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-bottom:18px; }
   .xp-block .row-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); }
   .xp-block .row-top b { color:var(--amber); font-size:14px; }
   .xp-track { height:14px; background:var(--panel-2); border-radius:7px; overflow:hidden; }
   .xp-fill { height:100%; background:linear-gradient(90deg, var(--amber), #ffd166); border-radius:7px; transition: width 0.5s ease; }
+
+  .event-banner { background:linear-gradient(90deg, rgba(255,179,0,0.14), rgba(255,179,0,0.03)); border:1px solid var(--amber); border-radius:8px; padding:12px 16px; margin-bottom:18px; font-size:13px; display:flex; align-items:center; gap:10px; }
+  .event-banner b { color:var(--amber); }
 
   .week-block { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-bottom:22px; }
   .week-block .wtitle { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
@@ -83,6 +88,7 @@
   .task-row .tag { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); border:1px solid var(--line); border-radius:3px; padding:2px 6px; }
   .task-row .hrs { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); }
   .task-row .xp { font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; min-width:40px; text-align:right; color:var(--good); }
+  .task-row .xp.boosted { color:var(--amber); }
   .task-row .mand { color:var(--danger); font-size:10px; }
   .task-row .del { background:none; border:none; color:var(--muted); cursor:pointer; font-size:15px; padding:2px 4px; }
   .task-row .del:hover { color:var(--danger); }
@@ -115,6 +121,14 @@
   .hist-row { display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--muted); padding:6px 0; border-bottom:1px solid var(--line); }
   .hist-row .miss { color:var(--danger); }
   .hist-row .clean { color:var(--good); }
+
+  .settings-block { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-bottom:30px; }
+  .settings-row { display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+  .settings-row label { font-size:12.5px; color:var(--muted); min-width:220px; }
+  .settings-row input { background:var(--panel-2); border:1px solid var(--line); color:var(--text); border-radius:4px; padding:7px 10px; font-size:13px; width:110px; font-family:'IBM Plex Mono',monospace; }
+  .settings-block button { background:var(--amber); border:none; color:#1a1300; font-weight:700; border-radius:4px; padding:8px 16px; cursor:pointer; font-size:13px; margin-top:4px; }
+  .settings-block button:hover { filter:brightness(1.08); }
+  .settings-hint { font-size:11px; color:var(--muted); margin-top:-4px; margin-bottom:10px; }
 
   .footer-row { display:flex; justify-content:space-between; align-items:center; margin-top:30px; padding-top:14px; border-top:1px solid var(--line); }
   .reset-btn { background:none; border:1px solid var(--line); color:var(--muted); font-size:11px; padding:6px 10px; border-radius:4px; cursor:pointer; font-family:'IBM Plex Mono',monospace; }
@@ -189,13 +203,40 @@
     { key: 'CREATE', label: 'Творчество', color: '#9D8DF1' },
   ];
   const COLOR_PALETTE = ['#34D2C0','#6EA8FE','#FFB300','#C792EA','#FF6B6B','#F4A261','#7ED957','#FF8FAB','#9D8DF1','#5FD0F3','#E0C341','#B0F2B6'];
-  const XP_PER_LEVEL = 1000;
   const HOUR_MILESTONES = [50, 100, 250, 500, 1000];
   const STREAK_MILESTONES = [7, 30, 100, 365];
   const LEVEL_MILESTONES = [2, 5, 10, 25, 50, 100];
   const HISTORY_CAP = 60;
+  const EVENT_MULTIPLIERS = [1.5, 2, 3];
+  const QUOTES = [
+    "Маленький шаг сегодня решает исход через год.",
+    "Дисциплина работает, даже когда мотивации нет.",
+    "Не жди настроения — начни, оно придёт само.",
+    "Прогресс тише, чем кажется, но он не останавливается.",
+    "Сложно — временно, привычка — навсегда.",
+    "Один процент в день даёт огромный результат за год.",
+    "Ты не обязан быть быстрым — только последовательным.",
+    "Лучшее время начать было вчера, второе — сейчас.",
+    "Отговорки убеждают только того, кто их придумал.",
+    "Комфорт и рост редко живут в одной комнате.",
+    "Считай не дни без срыва, а дни с действием.",
+    "Маленькая победа сегодня — фундамент завтрашней большой.",
+    "Тело помнит дисциплину дольше, чем разум — мотивацию.",
+    "Ты строишь не привычку — ты строишь себя.",
+    "Действие снимает тревогу быстрее, чем мысли о нём.",
+    "Регулярность почти всегда бьёт интенсивность.",
+    "Не нужно вдохновение, чтобы открыть учебник в 8 утра.",
+    "Заслуги считаются по повторениям, а не по словам.",
+    "Сложный день — тоже день, который можно закрыть.",
+    "Ты соревнуешься только с собой вчерашним.",
+  ];
 
-  function threshold(level) { return level * XP_PER_LEVEL; }
+  function seededIndex(str, mod) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+    return h % mod;
+  }
+  function threshold(level) { return level * (state.settings ? state.settings.xpPerLevel : 1000); }
   function todayStr(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
   function addDays(dateStr, n) { const d = new Date(dateStr + 'T00:00:00'); d.setDate(d.getDate()+n); return todayStr(d); }
 
@@ -206,6 +247,9 @@
       level: 1,
       xp: 0,
       todayNetXp: 0,
+      totalCompletions: 0,
+      todayEvent: null,
+      settings: { xpPerLevel: 1000, penaltyPercent: 100 },
       skillDefs: DEFAULT_SKILLS.map(s => ({ ...s })),
       skillStats,
       tasks: [
@@ -231,6 +275,7 @@
         { id: 's2', name: 'Любимая еда', cost: 30 },
         { id: 's3', name: 'Игровая сессия 1 час', cost: 25 },
         { id: 's4', name: 'Выходной день от протокола', cost: 100 },
+           { id: 's4', name: 'Выходной день от протокола', cost: 100 },
       ],
     };
   }
@@ -248,16 +293,25 @@
   }
   function applyPenalty(amount) { state.xp -= amount; if (state.xp < 0) state.xp = 0; }
 
+  function taskEffectiveXp(task) {
+    if (state.todayEvent && state.todayEvent.skill === task.skill) {
+      return Math.round(task.xp * state.todayEvent.multiplier);
+    }
+    return task.xp;
+  }
+
   function applyTaskCompletion(task, completing) {
     const sign = completing ? 1 : -1;
-    addGlobalXP(sign * task.xp);
-    state.todayNetXp = (state.todayNetXp || 0) + sign * task.xp;
+    const eff = taskEffectiveXp(task);
+    addGlobalXP(sign * eff);
+    state.todayNetXp = (state.todayNetXp || 0) + sign * eff;
     const sk = state.skillStats[task.skill];
     if (sk) {
-      sk.totalXp = Math.max(0, sk.totalXp + sign * task.xp);
+      sk.totalXp = Math.max(0, sk.totalXp + sign * eff);
       sk.totalHours = Math.max(0, sk.totalHours + sign * (task.hours || 0));
     }
-    state.coins = Math.max(0, state.coins + sign * Math.floor(task.xp / 10));
+    state.coins = Math.max(0, state.coins + sign * Math.floor(eff / 10));
+    state.totalCompletions = Math.max(0, (state.totalCompletions || 0) + sign);
   }
 
   let state = null;
@@ -285,6 +339,18 @@
     });
   }
 
+  function maybeGenerateEvent() {
+    const now = todayStr();
+    if (state.todayEvent && state.todayEvent.date === now) return;
+    const skills = state.skillDefs;
+    if (!skills.length) { state.todayEvent = null; return; }
+    const hasEvent = seededIndex(now + 'ev', 3) === 0;
+    if (!hasEvent) { state.todayEvent = null; return; }
+    const idx = seededIndex(now + 'sk', skills.length);
+    const mult = EVENT_MULTIPLIERS[seededIndex(now + 'mult', EVENT_MULTIPLIERS.length)];
+    state.todayEvent = { date: now, skill: skills[idx].key, skillLabel: skills[idx].label, multiplier: mult };
+  }
+
   function rollover() {
     const now = todayStr();
     let guard = 0;
@@ -294,7 +360,12 @@
       let allDone = true;
       let netXp = state.todayNetXp || 0;
       mandatoryTasks.forEach(t => {
-        if (!state.todayChecks[t.id]) { allDone = false; applyPenalty(t.xp); netXp -= t.xp; }
+        if (!state.todayChecks[t.id]) {
+          allDone = false;
+          const penalty = Math.round(t.xp * ((state.settings.penaltyPercent||100) / 100));
+          applyPenalty(penalty);
+          netXp -= penalty;
+        }
       });
       if (mandatoryTasks.length === 0) allDone = false;
       state.streak = allDone ? state.streak + 1 : 0;
@@ -310,6 +381,7 @@
       state.todayNetXp = 0;
       state.todayDate = addDays(state.todayDate, 1);
     }
+    maybeGenerateEvent();
     checkAchievements();
   }
 
@@ -355,7 +427,6 @@
     saveState(); render();
   }
 
-  // ---- управление навыками ----
   function renameSkill(key, newLabel) {
     const s = state.skillDefs.find(s => s.key === key);
     if (!s || !newLabel.trim()) return;
@@ -383,13 +454,19 @@
     saveState(); render();
   }
 
+  function saveSettings(xpPerLevel, penaltyPercent) {
+    state.settings.xpPerLevel = Math.max(50, xpPerLevel|0);
+    state.settings.penaltyPercent = Math.max(0, Math.min(300, penaltyPercent|0));
+    toast('⚙️ Настройки сохранены');
+    saveState(); render();
+  }
+
   async function resetAll() {
     if (!confirm('Стереть весь прогресс, задания, навыки, достижения и монеты? Это необратимо.')) return;
     state = defaultState();
     await saveState(); render();
   }
 
-  // ---- вспомогательное: отчёт за неделю ----
   function weekSummary() {
     const last7 = state.history.slice(0, 7);
     if (!last7.length) return null;
@@ -400,7 +477,6 @@
     return { total, avg, best, worst, days: last7.length };
   }
 
-  // ---- график XP по дням (SVG) ----
   function buildChartSvg() {
     const arr = state.history.slice(0, 30).slice().reverse();
     if (arr.length < 2) {
@@ -439,6 +515,11 @@
     const th = threshold(state.level);
     const pct = Math.min(100, Math.round((state.xp / th) * 100));
     const week = weekSummary();
+    const quote = QUOTES[seededIndex(todayStr() + 'q', QUOTES.length)];
+
+    const eventHtml = state.todayEvent
+      ? '<div class="event-banner">🎲 <span>Ивент дня: <b>×'+state.todayEvent.multiplier+' XP</b> за задания навыка <b>'+state.todayEvent.skillLabel+'</b> — только сегодня!</span></div>'
+      : '';
 
     const weekHtml = week ? (
       '<div class="week-block"><div class="wtitle">📅 Отчёт за последние ' + week.days + ' дн.</div>' +
@@ -453,15 +534,17 @@
     const tasksByCat = state.skillDefs.map(s => {
       const tasks = state.tasks.filter(t => t.skill === s.key);
       if (!tasks.length) return '';
+      const boosted = state.todayEvent && state.todayEvent.skill === s.key;
       return tasks.map(t => {
         const done = !!state.todayChecks[t.id];
+        const eff = taskEffectiveXp(t);
         return '<div class="task-row '+(done?'done':'')+'">'+
           '<div class="chk" data-toggle="'+t.id+'">'+(done?'✓':'')+'</div>'+
           '<span class="name">'+t.name+'</span>'+
           (t.mandatory ? '<span class="mand">ОБЯЗАТ.</span>' : '')+
           '<span class="tag" style="color:'+s.color+';border-color:'+s.color+'">'+s.label+'</span>'+
           (t.hours ? '<span class="hrs">'+t.hours+'ч</span>' : '')+
-          '<span class="xp">+'+t.xp+'</span>'+
+          '<span class="xp '+(boosted?'boosted':'')+'">+'+eff+(boosted?' 🎲':'')+'</span>'+
           '<button class="del" data-del="'+t.id+'" title="Удалить">✕</button></div>';
       }).join('');
     }).join('');
@@ -495,6 +578,10 @@
       '<div class="header"><div><div class="eyebrow">Life RPG · Протокол</div><h1>'+(todayStr()===state.todayDate ? 'Сегодня, '+state.todayDate : state.todayDate)+'</h1></div>'+
       '<div class="overall"><div class="num mono">'+state.level+'</div><div class="lbl">общий уровень</div></div></div>'+
 
+      '<div class="quote-line">"'+quote+'"</div>'+
+
+      eventHtml +
+
       '<div class="xp-block"><div class="row-top"><span>прогресс к уровню '+(state.level+1)+'</span><b>'+state.xp+' / '+th+' XP</b></div>'+
       '<div class="xp-track"><div class="xp-fill" style="width:'+pct+'%"></div></div></div>'+
 
@@ -502,7 +589,8 @@
 
       '<div class="top-stats"><span><span class="dot">●</span> streak: '+state.streak+' '+(state.streak>0?'дн.':'')+'</span>'+
       '<span>бонус XP: +'+Math.min(50, state.streak*5)+'%</span>'+
-      '<span class="coin">🪙 '+state.coins+' монет</span></div>'+
+      '<span class="coin">🪙 '+state.coins+' монет</span>'+
+      '<span>✅ всего выполнено: '+(state.totalCompletions||0)+'</span></div>'+
 
       '<div class="chart-block"><div class="ctitle">📈 График XP по дням (последние 30)</div>'+buildChartSvg()+'</div>'+
 
@@ -539,6 +627,15 @@
       '<div class="section-title">История</div>'+
       '<div class="history">'+(historyRows || '<div class="empty-note">Пока нет закрытых дней.</div>')+'</div>'+
 
+      '<div class="section-title">⚙️ Настройки</div>'+
+      '<div class="settings-block">'+
+        '<div class="settings-row"><label>XP до следующего уровня (за 1 уровень)</label><input type="number" id="set-xplvl" value="'+state.settings.xpPerLevel+'" min="50" step="50" /></div>'+
+        '<div class="settings-hint">Порог растёт как уровень × это число. Сейчас: до 2 ур. нужно '+state.settings.xpPerLevel+' XP, до 3 — '+(state.settings.xpPerLevel*2)+' XP и т.д.</div>'+
+        '<div class="settings-row"><label>Штраф за пропуск обязательного, %</label><input type="number" id="set-penalty" value="'+state.settings.penaltyPercent+'" min="0" max="300" step="10" /></div>'+
+        '<div class="settings-hint">100% = теряешь весь XP задания при пропуске. 50% — мягче, 150% — жёстче.</div>'+
+        '<button id="save-settings-btn">Сохранить настройки</button>'+
+      '</div>'+
+
       '<div class="footer-row"><span class="sync-note">синхронизировано с Firestore</span>'+
       '<button class="reset-btn" id="reset-btn">Сбросить всё</button></div>';
 
@@ -570,6 +667,11 @@
       const name = document.getElementById('new-skill-name').value.trim();
       if (!name) return;
       addSkill(name);
+    });
+    document.getElementById('save-settings-btn').addEventListener('click', () => {
+      const xplvl = parseInt(document.getElementById('set-xplvl').value, 10) || 1000;
+      const penalty = parseInt(document.getElementById('set-penalty').value, 10);
+      saveSettings(xplvl, isNaN(penalty) ? 100 : penalty);
     });
     document.getElementById('reset-btn').addEventListener('click', resetAll);
   }
@@ -621,13 +723,15 @@
     if (typeof st.level !== 'number') st.level = 1;
     if (typeof st.xp !== 'number') st.xp = 0;
     if (typeof st.todayNetXp !== 'number') st.todayNetXp = 0;
+    if (typeof st.totalCompletions !== 'number') st.totalCompletions = 0;
+    if (st.todayEvent === undefined) st.todayEvent = null;
+    if (!st.settings) st.settings = { xpPerLevel: 1000, penaltyPercent: 100 };
+    if (typeof st.settings.xpPerLevel !== 'number') st.settings.xpPerLevel = 1000;
+    if (typeof st.settings.penaltyPercent !== 'number') st.settings.penaltyPercent = 100;
     if (!st.coins && st.coins !== 0) st.coins = 0;
     if (!st.achievements) st.achievements = [];
     if (!st.shop) st.shop = defaultState().shop;
-    if (!st.skillDefs) {
-      // старое сохранение: пытаемся достать имена из старого поля skills, иначе дефолт
-      st.skillDefs = DEFAULT_SKILLS.map(s => ({ ...s }));
-    }
+    if (!st.skillDefs) st.skillDefs = DEFAULT_SKILLS.map(s => ({ ...s }));
     if (!st.skillStats) {
       st.skillStats = {};
       const oldSkills = st.skills || {};
